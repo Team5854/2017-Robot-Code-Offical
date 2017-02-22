@@ -1,8 +1,7 @@
 package org.usfirst.frc.team5854.Utils;
 
 import com.ctre.CANTalon;
-import com.ctre.CANTalon.FeedbackDevice;
-import com.ctre.CANTalon.TalonControlMode;
+
 import edu.wpi.first.wpilibj.RobotDrive;
 
 public class EightDrive
