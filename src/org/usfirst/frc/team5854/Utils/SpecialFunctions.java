@@ -1,5 +1,7 @@
 package org.usfirst.frc.team5854.Utils;
 
+import edu.wpi.first.wpilibj.DriverStation;
+
 public class SpecialFunctions {
 
 	public static double map(double x, double in_min, double in_max, double out_min, double out_max) {
@@ -9,6 +11,13 @@ public class SpecialFunctions {
 	public static int secToTicks(double secs) {
 		return (int) (secs * 500.0);
 	}
-	public static void colorPicker_BR(Callable<bool>  methodOne, Method methodTwo)
-	
+	public static String currentColor(){
+		DriverStation.Alliance getColor;
+		getColor = DriverStation.getInstance().getAlliance();
+		if(getColor == DriverStation.Alliance.Blue)
+			return "Blue";
+		else
+			return "Red";
+	}
+
 }
