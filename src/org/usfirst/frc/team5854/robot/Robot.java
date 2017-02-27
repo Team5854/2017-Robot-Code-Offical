@@ -62,7 +62,7 @@ public class Robot extends IterativeRobot {
 	Timer trackTime;
 
 	// Setup driver array (Caleb)(Abby)(Aeron)
-	int driverArray[][] = { { 1, 2, 3 }, { 2, 3, 4 }, { 4, 1, 2 } };
+	int driverArray[][] = { { 2, 3, 0 }, { 0, 1, 2 }, { 0, 1, 2 } };
 	int j ;
 
 	public void robotInit() {
@@ -112,10 +112,12 @@ public class Robot extends IterativeRobot {
 		// Setup Camera #2 - Shooter Camera
 		cameraserver2 = new CameraStreamer(1, 1185);
 		cameraserver2.setResolution(640, 400);
+		cameraserver2.setBrightness(1);
 
 		// Setup Camera #3 - Climber Camera
 		cameraserver3 = new CameraStreamer(2, 1190);
 		cameraserver3.setResolution(640, 400);
+		cameraserver3.setBrightness(1);
 
 		// Setup Timer
 		trackTime = new Timer();
@@ -124,9 +126,9 @@ public class Robot extends IterativeRobot {
 	boolean go = true;
 
 	public void autonomousInit() {
-		autoSelected = ((String) chooser.getSelected()); // select auton
+		autoSelected = ((String) chooser.getSelected()); // select autonomous
 		mecanumDrive.setCANTalonDriveMode(CANTalon.TalonControlMode.PercentVbus);
-		gyro.reset(); // reset gyro
+		gyro.reset(); // reset gyroscope
 		mecanumDrive.resetEncoders(); // resetEncoders
 		gearManager(false); // keep gear servos closed
 		go = true; // ensure go equals false
@@ -146,14 +148,14 @@ public class Robot extends IterativeRobot {
 				///////////////////////////////////////
 				case "Objective2":
 				moveForward(68.234); // move forward for 68.24 inches at 1.0 speed
-				turnRightGyro(30.0); // turn right to 30 deg
+				turnRightGyro(30.0); // turn right to 30 degree
 				moveForward(66.217); // move forward 66.22 inches at 1.0 speed
 				gearManager(true); // open gear servos
 				break;
 				///////////////////////////////////////
 				case "Objective3":
 				moveForward(68.234); // move forward for 68.24 inches at 1.0 speed
-				turnLeftGyro(30.0); // turn left to 30 deg
+				turnLeftGyro(30.0); // turn left to 30 degree
 				moveForward(66.217); // move forward 66.22 inches at 1.0 speed
 				gearManager(true); // open gear servos
 				break;
@@ -227,14 +229,17 @@ public class Robot extends IterativeRobot {
 			mecanumDrive.mecanumDrive_Cartesian(buttonJoystick.getX(), buttonJoystick.getY(), buttonJoystick.getTwist(), 0);
 		}
 
+		// set how to operate gear
 		gearManager(buttonJoystick.getRawButton(3));
 
+		// set how to activate climber
 		climberManager(buttonJoystick.getRawButton(11));
 
+		// set how to operate agitator and shooter
 		shooterManager(buttonJoystick.getRawButton(2), buttonJoystick.getRawButton(1));
-
+		
+		//set how to operate
 		harvesterManager(buttonJoystick.getRawButton(7), buttonJoystick.getRawButton(8));
-
 	}
 
 	public void gearManager(boolean go) {
@@ -248,10 +253,10 @@ public class Robot extends IterativeRobot {
 	}
 
 	public void harvesterManager(boolean go, boolean reverse) {
-		if (go) {
-			harvestermotor.setSpeed(-1.0);
-		} else if (reverse) {
+		if (reverse) {
 			harvestermotor.setSpeed(1.0);
+		} else if (go) {
+			harvestermotor.setSpeed(-1.0);
 		} else {
 			harvestermotor.setSpeed(0.0);
 		}
