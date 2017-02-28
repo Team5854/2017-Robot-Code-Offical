@@ -5,7 +5,6 @@ import edu.wpi.cscore.CvSource;
 import edu.wpi.cscore.MjpegServer;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.cscore.VideoMode;
-import edu.wpi.cscore.VideoMode.PixelFormat;
 
 public class CameraStreamer
 {
@@ -16,7 +15,6 @@ public class CameraStreamer
   private CvSink cvSink;
   private CvSource outputStream;
   private MjpegServer mjpegServer2;
-  
   
   public void setCameraNumber(int id) {
 	  switch (id) {
@@ -33,11 +31,9 @@ public class CameraStreamer
 	  }
   }
   
-  
   public CameraStreamer(int port)
   {
     mjpegServer1 = new MjpegServer("serve_USB Camera " + port, port);
-    
     
     cvSink = new CvSink("opencv_USB Camera " + port);
     
@@ -52,8 +48,10 @@ public class CameraStreamer
   
   public void setBrightness(int brightness)
   {
+	usbCamera0.setBrightness(brightness);
     usbCamera1.setBrightness(brightness);
-  }
+    usbCamera2.setBrightness(brightness);
+  }  
   
   public void setResolution()
   {
