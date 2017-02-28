@@ -12,6 +12,8 @@ import static org.usfirst.frc.team5854.Utils.SpecialFunctions.currentColor;
 import static org.usfirst.frc.team5854.Utils.SpecialFunctions.map;
 
 import org.usfirst.frc.team5854.Utils.EightDrive;
+import org.usfirst.frc.team5854.Utils.SpecialFunctions;
+
 import com.ctre.CANTalon;
 
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
@@ -55,8 +57,6 @@ public class Robot extends IterativeRobot {
 
 	// Setup camera variables
 	CameraStreamer cameraserver1; // Gear Cam
-	CameraStreamer cameraserver2; // Shoorter Cam
-	CameraStreamer cameraserver3; // Climb Cam
 
 	// Setup Timer
 	Timer trackTime;
@@ -105,25 +105,15 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putData("Auto choices", chooser);
 
 		// Setup Camera #1 - Gear Camera
-		cameraserver1 = new CameraStreamer(0, 1181);
-		cameraserver1.setResolution(640, 400);
-		cameraserver1.setBrightness(1);
-
-		// Setup Camera #2 - Shooter Camera
-		cameraserver2 = new CameraStreamer(1, 1185);
-		cameraserver2.setResolution(640, 400);
-		cameraserver2.setBrightness(1);
-
-		// Setup Camera #3 - Climber Camera
-		cameraserver3 = new CameraStreamer(2, 1190);
-		cameraserver3.setResolution(640, 400);
-		cameraserver3.setBrightness(1);
+		cameraserver1 = new CameraStreamer(1181);
+		cameraserver1.setResolution();
+		cameraserver1.setCameraNumber(1);
 
 		// Setup Timer
 		trackTime = new Timer();
 	}
 
-	boolean go = true;
+	boolean autoOnce = true;
 
 	public void autonomousInit() {
 		autoSelected = ((String) chooser.getSelected()); // select autonomous
@@ -131,14 +121,14 @@ public class Robot extends IterativeRobot {
 		gyro.reset(); // reset gyroscope
 		mecanumDrive.resetEncoders(); // resetEncoders
 		gearManager(false); // keep gear servos closed
-		go = true; // ensure go equals false
+		autoOnce = true; // ensure go equals false
 	}
 
 	public void autonomousPeriodic() {
-		if (go) {
+		if (autoOnce) {
 			switch (autoSelected) {
 				case "Objective0":
-				moveForward(90.0); // move forward for 90 inches at 1.0 speed
+				moveForward(110.0); // move forward for 110 inches at 1.0 speed
 				break;
 				///////////////////////////////////////
 				case "Objective1":
@@ -147,14 +137,14 @@ public class Robot extends IterativeRobot {
 				break;
 				///////////////////////////////////////
 				case "Objective2":
-				moveForward(68.234); // move forward for 68.24 inches at 1.0 speed
+				moveForward(68.234); // move forward for 68.234 inches at 1.0 speed
 				turnRightGyro(30.0); // turn right to 30 degree
 				moveForward(66.217); // move forward 66.22 inches at 1.0 speed
 				gearManager(true); // open gear servos
 				break;
 				///////////////////////////////////////
 				case "Objective3":
-				moveForward(68.234); // move forward for 68.24 inches at 1.0 speed
+				moveForward(68.234); // move forward for 68.234 inches at 1.0 speed
 				turnLeftGyro(30.0); // turn left to 30 degree
 				moveForward(66.217); // move forward 66.22 inches at 1.0 speed
 				gearManager(true); // open gear servos
@@ -197,13 +187,15 @@ public class Robot extends IterativeRobot {
 				mecanumDrive.stop(); // Stop all motor movement
 				break;
 			}
-		}
-		go = false;
+		} 
+		autoOnce = false;
 	}
 
 	double gyroAngle = 0.0;
 	boolean joyOne = true;
-
+	boolean fullSpeed = false;
+	
+	
 	public void teleopPeriodic() {
 		if(driver.getSelected() == Abby) j = 1;
 		else if(driver.getSelected() == Aeron) j = 2;
@@ -215,11 +207,40 @@ public class Robot extends IterativeRobot {
 		mecanumDrive.setDeadband(0.1);
 
 		// sets how fast you can rotate the robot
-		mecanumDrive.setTwistMultiplyer(0.3);
-
+		if (mainJoystick.getRawButton(2) || altJoystick.getRawButton(2)) {
+			while(mainJoystick.getRawButton(2) || altJoystick.getRawButton(2)){}
+			fullSpeed = !fullSpeed;
+			
+		}
+		int Climber= 4;
+		if (mainJoystick.getRawButton(Climber) || altJoystick.getRawButton(Climber)) {
+			while(mainJoystick.getRawButton(Climber) || altJoystick.getRawButton(Climber)){}
+			cameraserver1.setCameraNumber(0);
+			
+		}
+		
+		int gear= 3;
+		if (mainJoystick.getRawButton(gear) || altJoystick.getRawButton(gear)) {
+			while(mainJoystick.getRawButton(gear) || altJoystick.getRawButton(gear)){}
+			cameraserver1.setCameraNumber(1);
+			
+		}
+		int shooter = 1;
+		if (mainJoystick.getRawButton(shooter) || altJoystick.getRawButton(shooter)) {
+			while(mainJoystick.getRawButton(shooter) || altJoystick.getRawButton(shooter)){}
+			cameraserver1.setCameraNumber(2);
+			
+		}
+		
 		// sets how fast your robot strafes and drives.
-		mecanumDrive.setSpeedMultiplyer(0.5);
-
+		if(fullSpeed) {
+			mecanumDrive.setSpeedMultiplyer(1.0);
+			mecanumDrive.setTwistMultiplyer(0.8);
+		} else {
+			mecanumDrive.setSpeedMultiplyer(0.5);
+			mecanumDrive.setTwistMultiplyer(0.3);
+		}
+		
 		//set how the robot drive is manipulated
 		if (mainJoystick.getName().startsWith("FRC")) {
 			mecanumDrive.mecanumDrive_Cartesian(mainJoystick.getRawAxis(0), mainJoystick.getRawAxis(1), mainJoystick.getRawAxis(2), 0);
@@ -243,7 +264,7 @@ public class Robot extends IterativeRobot {
 	}
 
 	public void gearManager(boolean go) {
-		if (go == true) {
+		if (go) {
 			leftgearservo.setAngle(0.0);
 			rightgearservo.setAngle(90.0);
 		} else {
@@ -271,6 +292,10 @@ public class Robot extends IterativeRobot {
 	}
 
 	public static void shooterManager(boolean go, boolean second) {
+		if(second && !go) {
+			agitatormotor.setSpeed(map(buttonJoystick.getThrottle(), -1, 1, -1, -.25));
+
+		} else {
 		if (go) {
 			shootermotor.setSpeed(-1.0);
 			if(second && DriverStation.getInstance().isAutonomous()) 
@@ -283,18 +308,28 @@ public class Robot extends IterativeRobot {
 			shootermotor.setSpeed(0.0);
 			agitatormotor.setSpeed(0.0);
 		}
+		}
 	}
 
 	boolean once = false;
 
+	public void testInit() {
+		mecanumDrive.resetEncoders();
+	}
 	public void testPeriodic() {
 		if (buttonJoystick.getRawButton(4)) {
-			once = false;
 			while (buttonJoystick.getRawButton(4)) {
 			}
+			mecanumDrive.resetEncoders();
+
+			once = false;
 		}
 		if (!once) { // BEGIN TEST
+			//mecanumDrive.resetEncoders();
+			//moveForward(10);
+			strafeLeft(5);
 
+			
 		} // END TEST
 		once = true;
 	}

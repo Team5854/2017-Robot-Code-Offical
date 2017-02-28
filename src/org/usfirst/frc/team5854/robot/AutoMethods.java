@@ -12,6 +12,7 @@ public class AutoMethods {
 	static EightDrive mecanumDrive = Robot.mecanumDrive;
 	static ADXRS450_Gyro gyro = Robot.gyro;
 	static double gyroAngle = 0;
+	static Timer trackTime2 = new Timer();
 
 	public static void visionTurn() {
 		gyroAngle = gyro.getAngle();
@@ -87,8 +88,7 @@ public class AutoMethods {
 			if (rotation < (desRotation / 2)) {
 				speed = SpecialFunctions.map(mecanumDrive.getEncValueRight(), 0, desRotation / 2, .3, .7);
 			} else {
-				speed = SpecialFunctions.map(mecanumDrive.getEncValueRight(), desRotation / 2, desRotation - 800, .7,
-						.05);
+				speed = SpecialFunctions.map(mecanumDrive.getEncValueRight(), desRotation / 2, desRotation, .7, .05);
 			}
 			highSpeed = speed;
 			slowSpeed = speed - 0.1;
@@ -165,11 +165,15 @@ public class AutoMethods {
 	public static void strafeRight(double seconds) {
 		mecanumDrive.mecanumDrive_Cartesian(-1, 0, 0, 0);
 		Timer.delay(seconds);
+		mecanumDrive.mecanumDrive_Cartesian(0, 0, 0, 0);
+
 	}
 
 	public static void strafeLeft(double seconds) {
 		mecanumDrive.mecanumDrive_Cartesian(1, 0, 0, 0);
 		Timer.delay(seconds);
+		mecanumDrive.mecanumDrive_Cartesian(0, 0, 0, 0);
+
 	}
 
 	public static void shootFor(double seconds, boolean shoot, boolean feed) {
