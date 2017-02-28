@@ -1,11 +1,15 @@
 package org.usfirst.frc.team5854.robot;
 
-//AutoMethods
-import static org.usfirst.frc.team5854.robot.AutoMethods.moveForwardWithMap;
-import static org.usfirst.frc.team5854.robot.AutoMethods.strafe;
-import static org.usfirst.frc.team5854.robot.AutoMethods.turnGyro;
-import static org.usfirst.frc.team5854.robot.AutoMethods.visionTurn;
-import static org.usfirst.frc.team5854.robot.AutoMethods.turnGyroRight;
+import static org.usfirst.frc.team5854.robot.AutoMethods.moveForward;
+import static org.usfirst.frc.team5854.robot.AutoMethods.moveBackward;
+import static org.usfirst.frc.team5854.robot.AutoMethods.turnLeftGyro;
+import static org.usfirst.frc.team5854.robot.AutoMethods.turnRightGyro;
+import static org.usfirst.frc.team5854.robot.AutoMethods.strafeLeft;
+import static org.usfirst.frc.team5854.robot.AutoMethods.strafeRight;
+import static org.usfirst.frc.team5854.robot.AutoMethods.shootFor;
+
+import static org.usfirst.frc.team5854.Utils.SpecialFunctions.currentColor;
+import static org.usfirst.frc.team5854.Utils.SpecialFunctions.map;
 
 import org.usfirst.frc.team5854.Utils.EightDrive;
 import org.usfirst.frc.team5854.Utils.SpecialFunctions;
@@ -18,51 +22,54 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.Timer;
 
 public class Robot extends IterativeRobot {
-	//Setup robot 
+
+	// Setup robot
 	public static EightDrive mecanumDrive;
 	Encoder backLeftEnc;
-	VictorSP shootermotor;
-	VictorSP agitatormotor;
+	Encoder backRightEnc;
+	static VictorSP shootermotor;
+	static VictorSP agitatormotor;
+	VictorSP climbermotor;
+	VictorSP harvestermotor;
 	Servo leftgearservo;
 	Servo rightgearservo;
 	Joystick mainJoystick;
-	Joystick buttonJoystick;
-	Joystick secondJoystick;
+	static Joystick buttonJoystick;
+	Joystick altJoystick;
 	static ADXRS450_Gyro gyro;
-	VictorSP climbermotor;
-	VictorSP harvestermotor;
-	
-	//Test variables
-	final String driveForward = "driveforward";
-	final String spin = "spin";
-	final String visionTrackingTest = "Vision Test";
-	
+
 	// Setup variables for autonomous
-	final String objective1 = "Objective1";
-	final String objective2 = "Objective2";
-	final String objective3 = "Objective3";
-	final String objective4 = "Objective4";
-	final String objective45 = "Objective45";
-	final String objective46 = "Objective46";
 	String autoSelected;
 	SendableChooser<String> chooser;
-	
-	//Setup camera variables
-	CameraStreamer cameraserver1;
-	CameraStreamer cameraserver2;
-	CameraStreamer cameraserver3;
+
+	// Setup variables for driver
+	final String Caleb = "driverCaleb";
+	final String Abby = "driverAbby";
+	final String Aeron = "driverAeron";
+	String driverChooser;
+	SendableChooser<String> driver;
+
+	// Setup camera variables
+	CameraStreamer cameraserver1; // Gear Cam
+
+	// Setup Timer
+	Timer trackTime;
+
+	// Setup driver array (Caleb)(Abby)(Aeron)
+	int driverArray[][] = { { 2, 3, 0 }, { 0, 1, 2 }, { 0, 1, 2 } };
+	int j ;
 
 	public void robotInit() {
-		//driving creation. hover to find out more.
+		// Drive Train Creation
 		mecanumDrive = new EightDrive(2, 3, 1, 4, 7, 5, 8, 6);
-		
-		//PWM motors for non-drive mechanics.
+
+		// PWM motors for non-drive mechanics
 		harvestermotor = new VictorSP(0);
 		rightgearservo = new Servo(1);
 		leftgearservo = new Servo(2);
@@ -70,218 +77,194 @@ public class Robot extends IterativeRobot {
 		agitatormotor = new VictorSP(4);
 		climbermotor = new VictorSP(5);
 
-		
-		//ports for each joystick.
-		mainJoystick = new Joystick(1); //main joy is the driving joystick
-		buttonJoystick = new Joystick(0); //button joy is the black joystick for controlling non-drive mechanics
-		secondJoystick = new Joystick(2);
+		// Configure ports for each joystick.
+		buttonJoystick = new Joystick(0); // Buttons Joystick
+		mainJoystick = new Joystick(1); // Main Joystick
+		altJoystick = new Joystick(2); // Alternate Joystick
 
-		//setup gyro
+		// Setup gyro
 		gyro = new ADXRS450_Gyro();
 
-		//smartdashboard for which autonomous method we use.
+		// Setup SmartDashboard - Driver
+		driver = new SendableChooser<String>();
+		driver.addDefault("Caleb", "driverCaleb");
+		driver.addObject("Abby", "driverAbby");
+		driver.addObject("Aeron", "driverAeron");
+		SmartDashboard.putData("Driver Choices", driver);
+
+		// Setup SmartDashboard - Autonomous
 		chooser = new SendableChooser<String>();
-		chooser.addDefault("Drive forward", "driveforward");
-		chooser.addObject("spin", "spin");
-		chooser.addObject("Vision Test", "Vision Test");
+		chooser.addObject("Objective #-1", "Objective-1");
+		chooser.addDefault("Objective #0", "Objective0");
 		chooser.addObject("Objective #1", "Objective1");
 		chooser.addObject("Objective #2", "Objective2");
-		chooser.addDefault("Objective #3", "Objective3");
-		chooser.addDefault("Objective #4", "Objective4");
-		chooser.addDefault("Objective #4 and #5", "Objective45");
-		chooser.addDefault("Objective #6", "Objective6");
-		chooser.addDefault("Objective #6 and #7", "Objective67");
+		chooser.addObject("Objective #3", "Objective3");
+		chooser.addObject("Objective #4", "Objective4");
+		chooser.addObject("Objective #4 + #5", "Objective45");
+		chooser.addObject("Objective #4 + #6", "Objective46");
 		SmartDashboard.putData("Auto choices", chooser);
 
-		cameraserver1 = new CameraStreamer(0, 1181);
-		cameraserver1.setResolution(440, 200);
-		cameraserver1.setBrightness(1);
-		
-		cameraserver2 = new CameraStreamer(1, 1185);
-		cameraserver2.setResolution(440, 200);
-		
-		cameraserver3 = new CameraStreamer(2, 1190);
-		cameraserver3.setResolution(440, 200);
-		
-		System.out.println("Done Initializing.");
-		
+		// Setup Camera #1 - Gear Camera
+		cameraserver1 = new CameraStreamer(1181);
+		cameraserver1.setResolution();
+		cameraserver1.setCameraNumber(1);
+
+		// Setup Timer
+		trackTime = new Timer();
 	}
+
+	boolean autoOnce = true;
 
 	public void autonomousInit() {
-		autoSelected = ((String) chooser.getSelected());
+		autoSelected = ((String) chooser.getSelected()); // select autonomous
 		mecanumDrive.setCANTalonDriveMode(CANTalon.TalonControlMode.PercentVbus);
-		gyro.reset();
-		go = true;
+		gyro.reset(); // reset gyroscope
+		mecanumDrive.resetEncoders(); // resetEncoders
+		gearManager(false); // keep gear servos closed
+		autoOnce = true; // ensure go equals false
 	}
-
-	boolean go = true;
 
 	public void autonomousPeriodic() {
-		Timer myTime = new Timer();
-		
-		if (buttonJoystick.getRawButton(7)) 
-		{
-			go = true;
-			gyro.reset();
-		}
-		
-		if (go) {
+		if (autoOnce) {
 			switch (autoSelected) {
-			case "Vision Test":
-				visionTurn();
-				go = false;
+				case "Objective0":
+				moveForward(110.0); // move forward for 110 inches at 1.0 speed
 				break;
-			case "spin":
-				turnGyro('R', 90.0, true);
-				go = false;
+				///////////////////////////////////////
+				case "Objective1":
+				moveForward(94.75); // move forward for 94.75 inches at 1.0 speed
+				gearManager(true);  // open gear servos
 				break;
-				////////////////////////
-			case "driveforward":
-				moveForwardWithMap(30.0);
-				go = false;
+				///////////////////////////////////////
+				case "Objective2":
+				moveForward(68.234); // move forward for 68.234 inches at 1.0 speed
+				turnRightGyro(30.0); // turn right to 30 degree
+				moveForward(66.217); // move forward 66.22 inches at 1.0 speed
+				gearManager(true); // open gear servos
 				break;
-			case "Objective1":
-				moveForwardWithMap(94.75);
-				gearManager(true);
-				go = false;
+				///////////////////////////////////////
+				case "Objective3":
+				moveForward(68.234); // move forward for 68.234 inches at 1.0 speed
+				turnLeftGyro(30.0); // turn left to 30 degree
+				moveForward(66.217); // move forward 66.22 inches at 1.0 speed
+				gearManager(true); // open gear servos
 				break;
-			case "Objective2":
-				moveForwardWithMap(68.234);
-				turnGyro('R', 30.0, true);
-				moveForwardWithMap(66.217);
-				gearManager(true);
-				go = false;
-				break;
-			case "Objective3":
-				moveForwardWithMap(68.234);
-				turnGyro('L', 30.0, true);
-				moveForwardWithMap(66.217);
-				gearManager(true);
-				go = false;
-				break;
-			case "Objective46":
-			case "Objective45":
-			case "Objective4":
-				moveForwardWithMap(-13.0);
-				
-				if (DriverStation.Alliance.Blue != null) {
-					turnGyro('R', 23.0, true);
-				} else {
-					turnGyro('L', 23.0, true);
-				}
-				
-				for (int i = 0; i < 3000; i++) {
-					shooterManager(true, false, false);
-				}
-				for (int i = 0; i < 7000; i++) {
-					shooterManager(true, true, false);
-				}
-				
-				if(autoSelected == objective45){
-					if (DriverStation.Alliance.Blue != null) {
-						turnGyro('R', 148.0, true);
-					} else {
-						turnGyro('L', 148.0, true);
-					}
-					moveForwardWithMap(100.0);
-					gearManager(true);
-					moveForwardWithMap(-8.0);
-					go = false;
-				}
-				else if (autoSelected == objective46) {
-					if(DriverStation.Alliance.Blue != null){
-						turnGyro('L', 69.25, true);
-					}
-					else{
-						turnGyro('R', 69.25, true);
-					}
-					moveForwardWithMap(-51.5);
-					if(DriverStation.Alliance.Blue != null){
-						strafe('R', 3.0);
-						for(int i = 0; i <= (1 * 1000); i++){}
-						strafe('L', 0.5);
-					}
-					else{
-						strafe('L', 3.0);
-						myTime.delay(1.0);
-						strafe('R', 0.5);
-					}
-					moveForwardWithMap(32.555);
-					 
-					if(DriverStation.Alliance.Blue != null){
-						turnGyro('L', 35.68, true);
-					}else { 
-						turnGyro('R', 35.68, true);
-					}
-					
-				}
-				else {
-					go = false;
-				}
-				
-				go = false;
-				break;
-		
-			}
-		}
-	}
+				///////////////////////////////////////
+				case "Objective4":
+				case "Objective45":
+				case "Objective46":
+				moveBackward(13.0); // move backward for 13 in at 1.0 speed
+				if(currentColor() == "Blue") turnRightGyro(23.0); //if blue turn right
+				else turnLeftGyro(23.0); //if red turn left
+				shootFor(2.0, true, false); // spin up shooter for 2 seconds
+				shootFor(5.0, true, true); // shoot balls for 5 seconds
 
-	public int secToTicks(double secs) {
-		return (int) (secs * 500.0);
+				if(autoSelected == "Objective45"){
+					if(currentColor() == "Blue") turnRightGyro(148.0); //if blue turn right
+					else turnLeftGyro(148.0); //if red turn left
+					moveForward(100.0); //move forward for 100 inches at 1.0 speed
+					gearManager(true); // open gear servos
+					moveBackward(8.0); // move backward for 8 inches at 1.0 speed
+					gearManager(false); // close gear servos
+				} else if(autoSelected == "Objective46"){
+					if(currentColor() == "Blue") turnRightGyro(69.25); //if blue turn right
+					else turnLeftGyro(69.25); //if red turn left
+					moveBackward(51.5); // move backward for 51 inches at 1.0 speed
+					if(currentColor() == "Blue") strafeRight(4.0); //if blue strafe right
+					else strafeLeft(4.0); //if red strafe left
+					Timer.delay(2.0); // wait 2 seconds
+					if(currentColor() == "Blue") strafeLeft(4.0); //if blue strafe left
+					else strafeRight(4.0); //if red strafe right
+					moveForward(32.555); // move forward for 32.56 inches at 1.0 speed
+					if(currentColor() == "Blue") turnRightGyro(35.48); //if blue turn right
+					else turnLeftGyro(35.48); //if red turn left
+					shootFor(2.0, true, false); // spin up shooter for 2 seconds
+					shootFor(5.0, true, true); // shot balls for 5 seconds
+				}
+				break;
+				//////////////////////////////////
+				default:
+				mecanumDrive.stop(); // Stop all motor movement
+				break;
+			}
+		} 
+		autoOnce = false;
 	}
 
 	double gyroAngle = 0.0;
 	boolean joyOne = true;
+	boolean fullSpeed = false;
+	
 	
 	public void teleopPeriodic() {
+		if(driver.getSelected() == Abby) j = 1;
+		else if(driver.getSelected() == Aeron) j = 2;
+		else j = 0;
+
 		mecanumDrive.setCANTalonDriveMode(CANTalon.TalonControlMode.PercentVbus);
 
-		//sets the deadband for the drive system.
+		// sets the deadband for the drive system.
 		mecanumDrive.setDeadband(0.1);
 
-		//sets how fast you can rotate the robot
-		mecanumDrive.setTwistMultiplyer(0.3);
-
-		//sets how fast your robot strafe and drives.
-		mecanumDrive.setSpeedMultiplyer(.5);
-		
-		//Selects which controller we are using for driving.
-	
-		if (!(secondJoystick.getName().startsWith("Logitech")) && !(mainJoystick.getName().startsWith("FRC"))) {
-			mecanumDrive.mecanumDrive_Cartesian(buttonJoystick.getX(), buttonJoystick.getY(), buttonJoystick.getTwist(), 0.0);
-		} 
-		else if (mainJoystick.getName().startsWith("FRC")) {
-			mecanumDrive.mecanumDrive_Cartesian(mainJoystick.getRawAxis(1), mainJoystick.getRawAxis(2), mainJoystick.getRawAxis(3), 0);
+		// sets how fast you can rotate the robot
+		if (mainJoystick.getRawButton(2) || altJoystick.getRawButton(2)) {
+			while(mainJoystick.getRawButton(2) || altJoystick.getRawButton(2)){}
+			fullSpeed = !fullSpeed;
+			
 		}
-		else {
-			if (joyOne) {
-				if (secondJoystick.getRawButton(2)) {
-					joyOne = false;
-				}
-				mecanumDrive.mecanumDrive_Cartesian(secondJoystick.getRawAxis(0), secondJoystick.getRawAxis(1), secondJoystick.getRawAxis(2), 0);
-			} else {
-				if (secondJoystick.getRawButton(2)) {
-					joyOne = true;
-				}
-				mecanumDrive.mecanumDrive_Cartesian(secondJoystick.getRawAxis(2), secondJoystick.getRawAxis(3), secondJoystick.getRawAxis(0), 0);
-			}
+		int Climber= 4;
+		if (mainJoystick.getRawButton(Climber) || altJoystick.getRawButton(Climber)) {
+			while(mainJoystick.getRawButton(Climber) || altJoystick.getRawButton(Climber)){}
+			cameraserver1.setCameraNumber(0);
+			
 		}
 		
-		//mecanumDrive.mecanumDrive_Cartesian(buttonJoystick.getX(), buttonJoystick.getY(), buttonJoystick.getTwist(), 0.0);
+		int gear= 3;
+		if (mainJoystick.getRawButton(gear) || altJoystick.getRawButton(gear)) {
+			while(mainJoystick.getRawButton(gear) || altJoystick.getRawButton(gear)){}
+			cameraserver1.setCameraNumber(1);
+			
+		}
+		int shooter = 1;
+		if (mainJoystick.getRawButton(shooter) || altJoystick.getRawButton(shooter)) {
+			while(mainJoystick.getRawButton(shooter) || altJoystick.getRawButton(shooter)){}
+			cameraserver1.setCameraNumber(2);
+			
+		}
+		
+		// sets how fast your robot strafes and drives.
+		if(fullSpeed) {
+			mecanumDrive.setSpeedMultiplyer(1.0);
+			mecanumDrive.setTwistMultiplyer(0.8);
+		} else {
+			mecanumDrive.setSpeedMultiplyer(0.5);
+			mecanumDrive.setTwistMultiplyer(0.3);
+		}
+		
+		//set how the robot drive is manipulated
+		if (mainJoystick.getName().startsWith("FRC")) {
+			mecanumDrive.mecanumDrive_Cartesian(mainJoystick.getRawAxis(0), mainJoystick.getRawAxis(1), mainJoystick.getRawAxis(2), 0);
+		} else if (!altJoystick.getName().equals("")) {
+			mecanumDrive.mecanumDrive_Cartesian(altJoystick.getRawAxis(driverArray[j][0]), altJoystick.getRawAxis(driverArray[j][1]), altJoystick.getRawAxis(driverArray[j][2]), 0);
+		} else {
+			mecanumDrive.mecanumDrive_Cartesian(buttonJoystick.getX(), buttonJoystick.getY(), buttonJoystick.getTwist(), 0);
+		}
 
+		// set how to operate gear
 		gearManager(buttonJoystick.getRawButton(3));
-		
-		climberManager(buttonJoystick.getRawButton(11));
-		
-		shooterManager(buttonJoystick.getRawButton(2), buttonJoystick.getRawButton(1), buttonJoystick.getRawButton(4));
-		
-		harvesterManager(buttonJoystick.getRawButton(7), buttonJoystick.getRawButton(8));
 
-		gyroAngle = gyro.getAngle();
+		// set how to activate climber
+		climberManager(buttonJoystick.getRawButton(11));
+
+		// set how to operate agitator and shooter
+		shooterManager(buttonJoystick.getRawButton(2), buttonJoystick.getRawButton(1));
+		
+		//set how to operate
+		harvesterManager(buttonJoystick.getRawButton(7), buttonJoystick.getRawButton(8));
 	}
 
 	public void gearManager(boolean go) {
-		if (go == true) {
+		if (go) {
 			leftgearservo.setAngle(0.0);
 			rightgearservo.setAngle(90.0);
 		} else {
@@ -291,10 +274,10 @@ public class Robot extends IterativeRobot {
 	}
 
 	public void harvesterManager(boolean go, boolean reverse) {
-		if (go) {
-			harvestermotor.setSpeed(-1.0);
-		} else if (reverse) {
+		if (reverse) {
 			harvestermotor.setSpeed(1.0);
+		} else if (go) {
+			harvestermotor.setSpeed(-1.0);
 		} else {
 			harvestermotor.setSpeed(0.0);
 		}
@@ -308,44 +291,46 @@ public class Robot extends IterativeRobot {
 		}
 	}
 
-	public void shooterManager(boolean go, boolean second, boolean third) {
+	public static void shooterManager(boolean go, boolean second) {
+		if(second && !go) {
+			agitatormotor.setSpeed(map(buttonJoystick.getThrottle(), -1, 1, -1, -.25));
+
+		} else {
 		if (go) {
 			shootermotor.setSpeed(-1.0);
-			if (second) {
-				if (third) {
-					agitatormotor.setSpeed(SpecialFunctions.map(buttonJoystick.getThrottle(), -1, 1, -1, -0.25));
-				} else {
-					agitatormotor.setSpeed(SpecialFunctions.map(buttonJoystick.getThrottle(), -1, 1, 1, 0.25));
-
-				}
-			} else {
+			if(second && DriverStation.getInstance().isAutonomous()) 
+				agitatormotor.setSpeed(0.7);
+			else if (second) 
+				agitatormotor.setSpeed(map(buttonJoystick.getThrottle(), -1, 1, 1, .25));
+			else 
 				agitatormotor.setSpeed(0.0);
-			}
 		} else {
 			shootermotor.setSpeed(0.0);
 			agitatormotor.setSpeed(0.0);
 		}
+		}
 	}
 
+	boolean once = false;
 
-	double r = 0.0;
-	double prevR = 0.0;
-	double l = 0.0;
-	double prevL = 0.0;
-	boolean reset = true;
-	boolean once = true;
-	int i = 0;
-
+	public void testInit() {
+		mecanumDrive.resetEncoders();
+	}
 	public void testPeriodic() {
-		gearManager(false);
 		if (buttonJoystick.getRawButton(4)) {
-			once = true;
-		}
-		if (once) {
+			while (buttonJoystick.getRawButton(4)) {
+			}
 			mecanumDrive.resetEncoders();
-			moveForwardWithMap(90);
-			//turnGyroRight(360.0);
+
 			once = false;
 		}
+		if (!once) { // BEGIN TEST
+			//mecanumDrive.resetEncoders();
+			//moveForward(10);
+			strafeLeft(5);
+
+			
+		} // END TEST
+		once = true;
 	}
 }

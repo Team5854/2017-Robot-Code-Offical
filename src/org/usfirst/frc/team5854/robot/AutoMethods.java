@@ -1,15 +1,18 @@
 package org.usfirst.frc.team5854.robot;
 
+import static org.usfirst.frc.team5854.robot.Robot.shooterManager;
 import org.usfirst.frc.team5854.Utils.EightDrive;
 import org.usfirst.frc.team5854.Utils.SpecialFunctions;
 import static org.usfirst.frc.team5854.Utils.SpecialFunctions.map;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.Timer;
 
 public class AutoMethods {
 
 	static EightDrive mecanumDrive = Robot.mecanumDrive;
 	static ADXRS450_Gyro gyro = Robot.gyro;
 	static double gyroAngle = 0;
+	static Timer trackTime2 = new Timer();
 
 	public static void visionTurn() {
 		gyroAngle = gyro.getAngle();
@@ -28,7 +31,7 @@ public class AutoMethods {
 
 	double angleError = 5.0;
 
-	public static void turnGyroRight(double angle) {
+	public static void turnRightGyro(double angle) {
 		double otherNumber = 0.0;
 		double speed = .5;
 
@@ -48,6 +51,137 @@ public class AutoMethods {
 		}
 	}
 
+	public static void turnLeftGyro(double angle) {
+		double otherNumber = 0.0;
+		double speed = .5;
+
+		gyro.reset();
+
+		while (angle - 2.5 > otherNumber) {
+			otherNumber = Math.abs(gyro.getAngle());
+			System.out.println("Gyro : " + otherNumber);
+			speed = map(otherNumber, 0, angle, .75, .2);
+			mecanumDrive.mecanumDrive_Polar(0, 0, speed);
+		}
+
+		for (int i = 0; i < 100; i++) {
+			mecanumDrive.moveLeftSide(0);
+			mecanumDrive.moveRightSide(0);
+			mecanumDrive.resetEncoders();
+		}
+	}
+
+	public static void moveForward(double inches) {
+		double converstion = (4000 / (6 * Math.PI));
+		double desRotation = converstion * Math.abs(inches);
+		System.out.println("DesRotations " + desRotation);
+
+		double speed = 0;
+
+		double highSpeed = 0;
+		double slowSpeed = 0;
+
+		mecanumDrive.resetEncoders();
+
+		double rotation = 0.0;
+		while (rotation < desRotation) {
+			if (rotation < (desRotation / 2)) {
+				speed = SpecialFunctions.map(mecanumDrive.getEncValueRight(), 0, desRotation / 2, .3, .7);
+			} else {
+				speed = SpecialFunctions.map(mecanumDrive.getEncValueRight(), desRotation / 2, desRotation, .7, .05);
+			}
+			highSpeed = speed;
+			slowSpeed = speed - 0.1;
+
+			rotation = Math.abs(mecanumDrive.getEncValueLeft());
+
+			System.out.println("Rotations " + rotation);
+			System.out.println("DesRotations " + desRotation);
+			if (mecanumDrive.getEncValueLeft() < mecanumDrive.getEncValueRight()) {
+				mecanumDrive.moveLeftSide(highSpeed);
+				mecanumDrive.moveRightSide(slowSpeed);
+			} else if (mecanumDrive.getEncValueRight() < mecanumDrive.getEncValueLeft()) {
+				mecanumDrive.moveLeftSide(slowSpeed);
+				mecanumDrive.moveRightSide(highSpeed);
+			} else {
+				mecanumDrive.moveLeftSide(highSpeed);
+				mecanumDrive.moveRightSide(highSpeed);
+			}
+		}
+
+		for (int i = 0; i < 100; i++) {
+			mecanumDrive.moveLeftSide(0);
+			mecanumDrive.moveRightSide(0);
+			mecanumDrive.resetEncoders();
+		}
+	}
+
+	public static void moveBackward(double inches) {
+		double converstion = (4000 / (6 * Math.PI));
+		double desRotation = converstion * Math.abs(inches);
+		System.out.println("DesRotations " + desRotation);
+
+		double speed = 0;
+
+		double highSpeed = 0;
+		double slowSpeed = 0;
+
+		mecanumDrive.resetEncoders();
+
+		double rotation = 0.0;
+		while (rotation < desRotation) {
+			if (rotation < (desRotation / 2)) {
+				speed = SpecialFunctions.map(mecanumDrive.getEncValueRight(), 0, desRotation / 2, .3, .7);
+			} else {
+				speed = SpecialFunctions.map(mecanumDrive.getEncValueRight(), desRotation / 2, desRotation - 800, .7,
+						.05);
+			}
+			highSpeed = -speed;
+			slowSpeed = -speed + 0.1;
+
+			rotation = Math.abs(mecanumDrive.getEncValueLeft());
+
+			System.out.println("Rotations " + rotation);
+			System.out.println("DesRotations " + desRotation);
+			if (mecanumDrive.getEncValueLeft() < mecanumDrive.getEncValueRight()) {
+				mecanumDrive.moveLeftSide(highSpeed);
+				mecanumDrive.moveRightSide(slowSpeed);
+			} else if (mecanumDrive.getEncValueRight() < mecanumDrive.getEncValueLeft()) {
+				mecanumDrive.moveLeftSide(slowSpeed);
+				mecanumDrive.moveRightSide(highSpeed);
+			} else {
+				mecanumDrive.moveLeftSide(highSpeed);
+				mecanumDrive.moveRightSide(highSpeed);
+			}
+		}
+
+		for (int i = 0; i < 100; i++) {
+			mecanumDrive.moveLeftSide(0);
+			mecanumDrive.moveRightSide(0);
+			mecanumDrive.resetEncoders();
+		}
+	}
+
+	public static void strafeRight(double seconds) {
+		mecanumDrive.mecanumDrive_Cartesian(-1, 0, 0, 0);
+		Timer.delay(seconds);
+		mecanumDrive.mecanumDrive_Cartesian(0, 0, 0, 0);
+
+	}
+
+	public static void strafeLeft(double seconds) {
+		mecanumDrive.mecanumDrive_Cartesian(1, 0, 0, 0);
+		Timer.delay(seconds);
+		mecanumDrive.mecanumDrive_Cartesian(0, 0, 0, 0);
+
+	}
+
+	public static void shootFor(double seconds, boolean shoot, boolean feed) {
+		shooterManager(shoot, feed);
+		Timer.delay(seconds);
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	public static void turnGyro(char direction, double angle, boolean resetGyro) {
 		double otherNumber = 0.0;
 		double slowMotorSpeed = 0.3;
@@ -103,79 +237,6 @@ public class AutoMethods {
 			mecanumDrive.moveLeftSide(0);
 			mecanumDrive.moveRightSide(0);
 			mecanumDrive.resetEncoders();
-		}
-	}
-
-	public static void moveForwardWithMap(double inches) {
-		double converstion = (4000 / (6 * Math.PI));
-		double desRotation = converstion * Math.abs(inches);
-		System.out.println("DesRotations " + desRotation);
-
-		double speed = 0;
-
-		double highSpeed = 0;
-		double slowSpeed = 0;
-
-		mecanumDrive.resetEncoders();
-
-		double rotation = 0.0;
-		while (rotation < desRotation) {
-			if (rotation < (desRotation / 2)) {
-				speed = SpecialFunctions.map(mecanumDrive.getEncValueRight(), 0, desRotation/2, .3, .7);
-			} else {
-				speed = SpecialFunctions.map(mecanumDrive.getEncValueRight(), desRotation/2, desRotation - 800, .7, .05);
-			}
-			highSpeed = speed;
-			slowSpeed = speed - 0.1;
-
-			rotation = Math.abs(mecanumDrive.getEncValueLeft());
-
-			System.out.println("Rotations " + rotation);
-			System.out.println("DesRotations " + desRotation);
-			if (mecanumDrive.getEncValueLeft() < mecanumDrive.getEncValueRight()) {
-				mecanumDrive.moveLeftSide(highSpeed);
-				mecanumDrive.moveRightSide(slowSpeed);
-			} else if (mecanumDrive.getEncValueRight() < mecanumDrive.getEncValueLeft()) {
-				mecanumDrive.moveLeftSide(slowSpeed);
-				mecanumDrive.moveRightSide(highSpeed);
-			} else {
-				mecanumDrive.moveLeftSide(highSpeed);
-				mecanumDrive.moveRightSide(highSpeed);
-			}
-		}
-
-		for (int i = 0; i < 100; i++) {
-			mecanumDrive.moveLeftSide(0);
-			mecanumDrive.moveRightSide(0);
-			mecanumDrive.resetEncoders();
-		}
-	}
-	/*
-	 * } else { System.out.println("Run ackwards"); while (rotation <
-	 * desRotation) { speed =
-	 * SpecialFunctions.map(mecanumDrive.getEncValueRight(), 0, desRotation, -1,
-	 * -0.1); highSpeed = speed; slowSpeed = speed + 0.1;
-	 * 
-	 * rotation = Math.abs(mecanumDrive.getEncValueLeft());
-	 * System.out.println("Run ackwards 2"); System.out.println("Rotations " +
-	 * rotation); System.out.println("DesRotations " + desRotation); if
-	 * (mecanumDrive.getEncValueLeft() > mecanumDrive.getEncValueRight()) {
-	 * mecanumDrive.moveLeftSide(slowSpeed);
-	 * mecanumDrive.moveRightSide(highSpeed); } else if
-	 * (mecanumDrive.getEncValueRight() > mecanumDrive.getEncValueLeft()) {
-	 * mecanumDrive.moveLeftSide(highSpeed);
-	 * mecanumDrive.moveRightSide(slowSpeed); } else {
-	 * mecanumDrive.moveLeftSide(highSpeed);
-	 * mecanumDrive.moveRightSide(highSpeed); } } }
-	 */
-
-	public static void strafe(char dir, double seconds) {
-		for (int i = 0; i < (seconds * 1000); i++) {
-			if ((dir + "").equalsIgnoreCase("L")) {
-				mecanumDrive.mecanumDrive_Cartesian(1, 0, 0, 0);
-			} else if ((dir + "").equalsIgnoreCase("R")) {
-				mecanumDrive.mecanumDrive_Cartesian(-1, 0, 0, 0);
-			}
 		}
 	}
 
