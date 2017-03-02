@@ -29,12 +29,12 @@ public class Robot extends IterativeRobot {
 
 	// Setup robot
 	public static EightDrive mecanumDrive;
-	static VictorSP shootermotor;
-	static VictorSP agitatormotor;
-	VictorSP climbermotor;
-	VictorSP harvestermotor;
-	Servo leftgearservo;
-	Servo rightgearservo;
+	static VictorSP shooterMotor;
+	static VictorSP agitatorMotor;
+	VictorSP climberMotor;
+	VictorSP harvesterMotor;
+	Servo leftGearServo;
+	Servo rightGearServo;
 	Joystick mainJoystick;
 	static Joystick buttonJoystick;
 	Joystick altJoystick;
@@ -82,12 +82,12 @@ public class Robot extends IterativeRobot {
 		mecanumDrive = new EightDrive(2, 3, 1, 4, 7, 5, 8, 6);
 
 		// PWM motors for non-drive mechanics
-		harvestermotor = new VictorSP(0);
-		rightgearservo = new Servo(1);
-		leftgearservo = new Servo(2);
-		shootermotor = new VictorSP(3);
-		agitatormotor = new VictorSP(4);
-		climbermotor = new VictorSP(5);
+		harvesterMotor = new VictorSP(0);
+		rightGearServo = new Servo(1);
+		leftGearServo = new Servo(2);
+		shooterMotor = new VictorSP(3);
+		agitatorMotor = new VictorSP(4);
+		climberMotor = new VictorSP(5);
 
 		// Configure ports for each joystick.
 		buttonJoystick = new Joystick(0); // Buttons joystick
@@ -135,12 +135,25 @@ public class Robot extends IterativeRobot {
 	boolean autoOnce = true;
 
 	public void autonomousInit() {
-		autoSelected = ((String) chooser.getSelected()); // select autonomous
+		// select autonomous
+		autoSelected = ((String) chooser.getSelected()); 
+		
+		// initiate mecanum autonomous mode
 		mecanumDrive.setCANTalonDriveMode(CANTalon.TalonControlMode.PercentVbus);
-		gyro.reset(); // reset gyroscope
-		mecanumDrive.resetEncoders(); // resetEncoders
+		
+		// reset sensors
+		gyro.reset();
+		mecanumDrive.resetEncoders();
+		
+		// zero all motors
 		gearManager(false); // keep gear servos closed
-		autoOnce = true; // ensure go equals false
+		shooterManager(false, false);
+		climberManager(false);
+		harvesterManager(false, false);
+		mecanumDrive.stop();
+		
+		// reset autoOnce
+		autoOnce = true;
 	}
 
 	public void autonomousPeriodic() {
@@ -159,14 +172,12 @@ public class Robot extends IterativeRobot {
 				moveForward(68.234); // move forward for 68.234 inches at 1.0 speed
 				turnRightGyro(30.0); // turn right to 30 degree
 				moveForward(66.217); // move forward 66.22 inches at 1.0 speed
-				gearManager(true); // open gear servos
 				break;
 			///////////////////////////////////////
 			case Objective3:
 				moveForward(68.234); // move forward for 68.234 inches at 1.0 speed
 				turnLeftGyro(30.0); // turn left to 30 degree
 				moveForward(66.217); // move forward 66.22 inches at 1.0 speed
-				gearManager(true); // open gear servos
 				break;
 			///////////////////////////////////////
 			case Objective4:
@@ -208,7 +219,8 @@ public class Robot extends IterativeRobot {
 				break;
 			}
 		}
-		autoOnce = false;
+		autoOnce = false; // reset autoOnce
+		mecanumDrive.stop(); // stop all motors
 	}
 
 	boolean fullSpeed = false;
@@ -258,8 +270,7 @@ public class Robot extends IterativeRobot {
 
 		// sets how fast you can rotate the robot
 		if (mainJoystick.getRawButton(pDriverArray[d][6]) || altJoystick.getRawButton(pDriverArray[d][6])) {
-			while (mainJoystick.getRawButton(pDriverArray[d][6]) || altJoystick.getRawButton(pDriverArray[d][6])) {
-			}
+			while (mainJoystick.getRawButton(pDriverArray[d][6]) || altJoystick.getRawButton(pDriverArray[d][6])) {}
 			fullSpeed = !fullSpeed;
 
 			if (fullSpeed) {
@@ -273,21 +284,18 @@ public class Robot extends IterativeRobot {
 
 		// manage the toggle between cameras
 		if (mainJoystick.getRawButton(pDriverArray[d][4]) || altJoystick.getRawButton(pDriverArray[d][4]) || buttonJoystick.getRawButton(sDriverArray[o][5])) {
-			while (mainJoystick.getRawButton(pDriverArray[d][4]) || altJoystick.getRawButton(pDriverArray[d][4]) || buttonJoystick.getRawButton(sDriverArray[o][5])) {
-			}
+			while (mainJoystick.getRawButton(pDriverArray[d][4]) || altJoystick.getRawButton(pDriverArray[d][4]) || buttonJoystick.getRawButton(sDriverArray[o][5])) {}
 			cameraServer.setCameraNumber(1); // change camera to gear
 		} else if (mainJoystick.getRawButton(pDriverArray[d][3]) || altJoystick.getRawButton(pDriverArray[d][3]) || buttonJoystick.getRawButton(sDriverArray[o][4])) {
-			while (mainJoystick.getRawButton(pDriverArray[d][3]) || altJoystick.getRawButton(pDriverArray[d][3]) || buttonJoystick.getRawButton(sDriverArray[o][4])) {
-			}
+			while (mainJoystick.getRawButton(pDriverArray[d][3]) || altJoystick.getRawButton(pDriverArray[d][3]) || buttonJoystick.getRawButton(sDriverArray[o][4])) {}
 			cameraServer.setCameraNumber(0); // change camera to climber
 		} else if (mainJoystick.getRawButton(pDriverArray[d][5]) || altJoystick.getRawButton(pDriverArray[d][5]) || buttonJoystick.getRawButton(sDriverArray[o][6])) {
-			while (mainJoystick.getRawButton(pDriverArray[d][5]) || altJoystick.getRawButton(pDriverArray[d][5]) || buttonJoystick.getRawButton(sDriverArray[o][6])) {
-			}
+			while (mainJoystick.getRawButton(pDriverArray[d][5]) || altJoystick.getRawButton(pDriverArray[d][5]) || buttonJoystick.getRawButton(sDriverArray[o][6])) {}
 			cameraServer.setCameraNumber(2); // change camera to shooter
 		}
 
 		// set how the robot drive is manipulated
-		if (mainJoystick.getName().startsWith("FR")) {
+		if (mainJoystick.getName().startsWith("FR SKY")) {
 			mecanumDrive.mecanumDrive_Cartesian(mainJoystick.getRawAxis(2), mainJoystick.getRawAxis(3), mainJoystick.getRawAxis(0), 0);
 		} else if (!altJoystick.getName().equals("")) {
 			mecanumDrive.mecanumDrive_Cartesian(altJoystick.getRawAxis(pDriverArray[d][0]), altJoystick.getRawAxis(pDriverArray[d][1]), altJoystick.getRawAxis(pDriverArray[d][2]), 0);
@@ -314,29 +322,29 @@ public class Robot extends IterativeRobot {
 
 	public void gearManager(boolean open) {
 		if (open) {
-			leftgearservo.setAngle(0.0);
-			rightgearservo.setAngle(90.0);
+			leftGearServo.setAngle(0.0);
+			rightGearServo.setAngle(90.0);
 		} else {
-			leftgearservo.setAngle(90.0);
-			rightgearservo.setAngle(0.0);
+			leftGearServo.setAngle(90.0);
+			rightGearServo.setAngle(0.0);
 		}
 	}
 
 	public void harvesterManager(boolean intake, boolean outtake) {
 		if (outtake) {
-			harvestermotor.setSpeed(1.0);
+			harvesterMotor.setSpeed(1.0);
 		} else if (intake) {
-			harvestermotor.setSpeed(-1.0);
+			harvesterMotor.setSpeed(-1.0);
 		} else {
-			harvestermotor.setSpeed(0.0);
+			harvesterMotor.setSpeed(0.0);
 		}
 	}
 
 	public void climberManager(boolean climb) {
 		if (climb) {
-			climbermotor.setSpeed(0.7);
+			climberMotor.setSpeed(0.7);
 		} else {
-			climbermotor.setSpeed(0.0);
+			climberMotor.setSpeed(0.0);
 		}
 	}
 
@@ -345,23 +353,23 @@ public class Robot extends IterativeRobot {
 		double agitatorSpeed = 0.7;
 		boolean isAuton = DriverStation.getInstance().isAutonomous();
 		if (!shoot && agitate) { // reverse agitator
-			shootermotor.setSpeed(0.0);
+			shooterMotor.setSpeed(0.0);
 			if (isAuton)
-				agitatormotor.setSpeed(-agitatorSpeed);
+				agitatorMotor.setSpeed(-agitatorSpeed);
 			else
-				agitatormotor.setSpeed(map(buttonJoystick.getThrottle(), -1, 1, -1, -.25));
+				agitatorMotor.setSpeed(map(buttonJoystick.getThrottle(), -1, 1, -1, -.25));
 		} else if (shoot && !agitate) { // spin up shooter
-			shootermotor.setSpeed(shooterSpeed);
-			agitatormotor.setSpeed(0.0);
+			shooterMotor.setSpeed(shooterSpeed);
+			agitatorMotor.setSpeed(0.0);
 		} else if (shoot && agitate) { // shoot and agitate
-			shootermotor.setSpeed(shooterSpeed);
+			shooterMotor.setSpeed(shooterSpeed);
 			if (isAuton)
-				agitatormotor.setSpeed(agitatorSpeed);
+				agitatorMotor.setSpeed(agitatorSpeed);
 			else
-				agitatormotor.setSpeed(map(buttonJoystick.getThrottle(), -1, 1, 1, .25));
+				agitatorMotor.setSpeed(map(buttonJoystick.getThrottle(), -1, 1, 1, .25));
 		} else { // stop both shooter and agitator
-			shootermotor.setSpeed(0.0);
-			agitatormotor.setSpeed(0.0);
+			shooterMotor.setSpeed(0.0);
+			agitatorMotor.setSpeed(0.0);
 		}
 	}
 
@@ -374,7 +382,7 @@ public class Robot extends IterativeRobot {
 		climberManager(false); // keep climber off
 		shooterManager(false, false); // dont shoot
 		harvesterManager(false, false); //dont harvest
-		once = false;
+		once = false; //reset once
 	}
 
 	public void testPeriodic() {
@@ -387,12 +395,12 @@ public class Robot extends IterativeRobot {
 		}
 		if (!once) { // BEGIN TEST
 
-			// mecanumDrive.resetEncoders();
-			// moveForward(10);
-			// strafeLeft(5);
+			mecanumDrive.resetEncoders();
 			
 			moveForward(10.0);
-
+			// strafeLeft(2.0);
+			// visionTurn();
+			
 		} // END TEST
 		mecanumDrive.stop();
 		once = true;
