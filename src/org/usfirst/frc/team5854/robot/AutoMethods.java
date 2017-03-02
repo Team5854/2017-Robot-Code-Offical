@@ -14,7 +14,6 @@ public class AutoMethods {
 	static double gyroAngle = 0;
 
 	public static void visionTurn() {
-		gyroAngle = gyro.getAngle();
 		double Angle = RoboSockets.getValue();
 		char directionChar = 'r';
 		if (Angle < 0.0) {
@@ -25,7 +24,11 @@ public class AutoMethods {
 		System.out.println(Angle);
 		Angle = Math.abs(Angle);
 
-		turnGyro(directionChar, Angle, true);
+		if (directionChar == 'L') {
+			turnLeftGyro(Angle);
+		} else {
+			turnRightGyro(Angle);
+		}
 	}
 
 	static double angleError = 2.5;
