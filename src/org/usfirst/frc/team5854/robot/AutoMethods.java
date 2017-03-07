@@ -9,13 +9,13 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class AutoMethods {
 
+	static int repeatTime = 5;
+	
 	static EightDrive mecanumDrive = Robot.mecanumDrive;
 	static ADXRS450_Gyro gyro = Robot.gyro;
 	static double gyroAngle = 0;
-	static Timer trackTime2 = new Timer();
 
 	public static void visionTurn() {
-		gyroAngle = gyro.getAngle();
 		double Angle = RoboSockets.getValue();
 		char directionChar = 'r';
 		if (Angle < 0.0) {
@@ -26,25 +26,30 @@ public class AutoMethods {
 		System.out.println(Angle);
 		Angle = Math.abs(Angle);
 
-		turnGyro(directionChar, Angle, true);
+		if (directionChar == 'L') {
+			turnLeftGyro(Angle);
+		} else {
+			turnRightGyro(Angle);
+		}
 	}
 
-	double angleError = 5.0;
+	static double angleError = 2.5;
 
 	public static void turnRightGyro(double angle) {
 		double otherNumber = 0.0;
-		double speed = .5;
+		double speed = 0.0;
+		
 
 		gyro.reset();
 
-		while (angle - 2.5 > otherNumber) {
+		while (angle - angleError > otherNumber) {
 			otherNumber = Math.abs(gyro.getAngle());
 			System.out.println("Gyro : " + otherNumber);
 			speed = map(otherNumber, 0, angle, .75, .2);
 			mecanumDrive.mecanumDrive_Polar(0, 0, speed);
 		}
 
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < repeatTime; i++) {
 			mecanumDrive.moveLeftSide(0);
 			mecanumDrive.moveRightSide(0);
 			mecanumDrive.resetEncoders();
@@ -57,39 +62,41 @@ public class AutoMethods {
 
 		gyro.reset();
 
-		while (angle - 2.5 > otherNumber) {
+		while (angle - angleError > otherNumber) {
 			otherNumber = Math.abs(gyro.getAngle());
 			System.out.println("Gyro : " + otherNumber);
 			speed = map(otherNumber, 0, angle, .75, .2);
-			mecanumDrive.mecanumDrive_Polar(0, 0, speed);
+			mecanumDrive.mecanumDrive_Polar(0, 0, -speed);
 		}
 
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < repeatTime; i++) {
 			mecanumDrive.moveLeftSide(0);
 			mecanumDrive.moveRightSide(0);
 			mecanumDrive.resetEncoders();
 		}
 	}
 
+	static int ticksPerRotation = 3100;
+	
 	public static void moveForward(double inches) {
-		double converstion = (4000 / (6 * Math.PI));
+		double converstion = (ticksPerRotation / (6 * Math.PI));
 		double desRotation = converstion * Math.abs(inches);
 		System.out.println("DesRotations " + desRotation);
 
 		double speed = 0;
-
 		double highSpeed = 0;
 		double slowSpeed = 0;
-
+		double rotation = 0.0;
+		
 		mecanumDrive.resetEncoders();
 
-		double rotation = 0.0;
 		while (rotation < desRotation) {
 			if (rotation < (desRotation / 2)) {
 				speed = SpecialFunctions.map(mecanumDrive.getEncValueRight(), 0, desRotation / 2, .3, .7);
 			} else {
-				speed = SpecialFunctions.map(mecanumDrive.getEncValueRight(), desRotation / 2, desRotation, .7, .05);
+				speed = SpecialFunctions.map(mecanumDrive.getEncValueRight(), desRotation / 2, desRotation, .7, .2);
 			}
+			
 			highSpeed = speed;
 			slowSpeed = speed - 0.1;
 
@@ -97,6 +104,7 @@ public class AutoMethods {
 
 			System.out.println("Rotations " + rotation);
 			System.out.println("DesRotations " + desRotation);
+			
 			if (mecanumDrive.getEncValueLeft() < mecanumDrive.getEncValueRight()) {
 				mecanumDrive.moveLeftSide(highSpeed);
 				mecanumDrive.moveRightSide(slowSpeed);
@@ -109,7 +117,7 @@ public class AutoMethods {
 			}
 		}
 
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < repeatTime; i++) {
 			mecanumDrive.moveLeftSide(0);
 			mecanumDrive.moveRightSide(0);
 			mecanumDrive.resetEncoders();
@@ -117,24 +125,22 @@ public class AutoMethods {
 	}
 
 	public static void moveBackward(double inches) {
-		double converstion = (4000 / (6 * Math.PI));
+		double converstion = (ticksPerRotation / (6 * Math.PI));
 		double desRotation = converstion * Math.abs(inches);
 		System.out.println("DesRotations " + desRotation);
 
 		double speed = 0;
-
 		double highSpeed = 0;
 		double slowSpeed = 0;
+		double rotation = 0.0;
 
 		mecanumDrive.resetEncoders();
 
-		double rotation = 0.0;
 		while (rotation < desRotation) {
 			if (rotation < (desRotation / 2)) {
 				speed = SpecialFunctions.map(mecanumDrive.getEncValueRight(), 0, desRotation / 2, .3, .7);
 			} else {
-				speed = SpecialFunctions.map(mecanumDrive.getEncValueRight(), desRotation / 2, desRotation - 800, .7,
-						.05);
+				speed = SpecialFunctions.map(mecanumDrive.getEncValueRight(), desRotation / 2, desRotation, .7, .2);
 			}
 			highSpeed = -speed;
 			slowSpeed = -speed + 0.1;
@@ -155,7 +161,7 @@ public class AutoMethods {
 			}
 		}
 
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < repeatTime; i++) {
 			mecanumDrive.moveLeftSide(0);
 			mecanumDrive.moveRightSide(0);
 			mecanumDrive.resetEncoders();

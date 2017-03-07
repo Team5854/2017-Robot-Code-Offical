@@ -3,6 +3,7 @@ package org.usfirst.frc.team5854.Utils;
 import com.ctre.CANTalon;
 
 import edu.wpi.first.wpilibj.RobotDrive;
+import edu.wpi.first.wpilibj.Timer;
 
 public class EightDrive {
 	private RobotDrive mecanumDriveOne;
@@ -148,6 +149,7 @@ public class EightDrive {
 	public void resetEncoders() {
 		rightRearMotorOne.setEncPosition(0);
 		leftRearMotorOne.setEncPosition(0);
+		Timer.delay(0.05);
 	}
 
 	public double getEncValueRight() {
