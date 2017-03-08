@@ -45,10 +45,11 @@ public class Robot extends IterativeRobot {
 	final String Objective0 = "Objective #0";
 	final String Objective1 = "Objective #1";
 	final String Objective2 = "Objective #2";
+	final String Objective27 = "Objective #27";
 	final String Objective3 = "Objective #3";
+	final String Objective37 = "Objective #37";
 	final String Objective4 = "Objective #4";
 	final String Objective45 = "Objective #45";
-	final String Objective46 = "Objective #46";
 	String autoSelected;
 	SendableChooser<String> chooser;
 
@@ -120,10 +121,11 @@ public class Robot extends IterativeRobot {
 		chooser.addDefault("Objective #0", Objective0);
 		chooser.addObject("Objective #1", Objective1);
 		chooser.addObject("Objective #2", Objective2);
+		chooser.addObject("Objective #2 + #7", Objective27);
 		chooser.addObject("Objective #3", Objective3);
+		chooser.addObject("Objective #3 + #7", Objective37);
 		chooser.addObject("Objective #4", Objective4);
 		chooser.addObject("Objective #4 + #5", Objective45);
-		chooser.addObject("Objective #4 + #6", Objective46);
 		SmartDashboard.putData("Autonomous choices", chooser);
 
 		// Setup Camera - Default to Gear Camera
@@ -169,20 +171,35 @@ public class Robot extends IterativeRobot {
 				break;
 			///////////////////////////////////////
 			case Objective2:
+			case Objective27:
 				moveForward(65); // move forward for 68.234 inches at 1.0 speed
 				turnLeftGyro(50.0); // turn right to 30 degree
 				moveForward(80); // move forward 66.22 inches at 1.0 speed
+				if(autoSelected == Objective27)
+				{
+					moveBackward(84);
+					turnRightGyro(148.3);
+					shootFor(0.2, true, false);
+					shootFor(4.0, true, true);
+				}
 				break;
 			///////////////////////////////////////
 			case Objective3:
+			case Objective37:
 				moveForward(65); // move forward for 68.234 inches at 1.0 speed
 				turnRightGyro(50.0); // turn left to 30 degree
 				moveForward(80); // move forward 66.22 inches at 1.0 speed
+				if(autoSelected == Objective37)
+				{
+					moveBackward(84);
+					turnLeftGyro(148.3);
+					shootFor(0.2, true, false);
+					shootFor(10.0, true, true);
+				}
 				break;
 			///////////////////////////////////////
 			case Objective4:
 			case Objective45:
-			case Objective46:
 				moveBackward(13.0); // move backward for 13 in at 1.0 speed
 				if (currentColor() == "Blue") turnRightGyro(23.0); // if blue turn right
 				else turnLeftGyro(23.0); // if red turn left
@@ -196,21 +213,6 @@ public class Robot extends IterativeRobot {
 					gearManager(true); // open gear servos
 					moveBackward(8.0); // move backward for 8 inches at 1.0  speed
 					gearManager(false); // close gear servos
-				} else if (autoSelected == Objective46) {
-					if (currentColor() == "Blue") turnRightGyro(69.25); // if blue turn right
-					else turnLeftGyro(69.25); // if red turn left
-					moveBackward(51.5); // move backward for 51 inches at 1.0 speed
-					if (currentColor() == "Blue") strafeRight(4.0); // if blue strafe right
-					else strafeLeft(4.0); // if red strafe left
-					Timer.delay(2.0); // wait 2 seconds
-					if (currentColor() == "Blue") strafeLeft(4.0); // if blue strafe left
-					else strafeRight(4.0); // if red strafe right
-					moveForward(32.555); // move forward for 32.56 inches at 1.0 speed
-					if (currentColor() == "Blue") turnRightGyro(35.48); // if blue turn right
-					else turnLeftGyro(35.48); // if red turn left
-					shootFor(2.0, true, false); // spin up shooter for 2 seconds
-					shootFor(5.0, true, true); // shot balls for 5 seconds
-					shooterManager(false, false);
 				}
 				break;
 			//////////////////////////////////
@@ -306,11 +308,7 @@ public class Robot extends IterativeRobot {
 		}
 
 		// set how to operate gear
-		//gearManager(buttonJoystick.getRawButton(sDriverArray[o][3]));
-		
-		boolean go = false;
-		if(buttonJoystick.getRawButton(sDriverArray[o][3])) go = true;
-		if(go) gearManager(false);
+		gearManager(buttonJoystick.getRawButton(sDriverArray[o][3]));
 
 		// set how to activate climber
 		climberManager(buttonJoystick.getRawButton(sDriverArray[o][2]));
