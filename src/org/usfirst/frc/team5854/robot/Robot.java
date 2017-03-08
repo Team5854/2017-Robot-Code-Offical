@@ -66,10 +66,10 @@ public class Robot extends IterativeRobot {
 	CameraStreamer cameraServer;
 
 	// Setup driver array (Default)(Caleb)(Abby)(Aeron)
-	int pDriverArray[][] = { { 0, 1, 2, 4, 3, 1, 2 }, { 2, 3, 0, 4, 3, 1, 2 }, { 0, 1, 2, 3, 4, 1, 2 }, { 0, 1, 2, 3, 2, 4, 11 } };
+	int pDriverArray[][] = { { 0, 1, 2, 4, 3, 1, 2 }, { 2, 3, 0, 4, 3, 1, 6 }, { 0, 1, 2, 3, 4, 1, 2 }, { 0, 1, 2, 3, 2, 4, 8 } };
 
 	// setup driver array (Default)(Abby)(Aeron)(Jacob)(Josh)
-	int sDriverArray[][] = { { 7, 8, 11, 3, 6, 4, 5 }, { 8,	7, 12, 3, 11, 5, 4 }, { 7, 8, 4, 3, 11, 12, 9}, { 7, 8, 4, 3, 11, 12, 10 }, { 7, 8, 11, 3, 6, 4, 5 } };
+	int sDriverArray[][] = { { 7, 8, 11, 3, 6, 4, 5 }, { 8,	7, 12, 3, 11, 5, 4 }, { 7, 8, 4, 3, 11, 12, 9}, { 7, 8, 4, 3, 6, 5, 10 }, { 7, 8, 11, 3, 6, 4, 5 } };
 
 	// store the value of the drivers
 	int d, o;
@@ -161,23 +161,23 @@ public class Robot extends IterativeRobot {
 		if (autoOnce) {
 			switch (autoSelected) {
 			case Objective0:
-				moveForward(110.0); // move forward for 110 inches at 1.0 speed
+				moveForward(120.0); // move forward for 110 inches at 1.0 speed
 				break;
 			///////////////////////////////////////
 			case Objective1:
-				moveForward(94.75); // move forward for 94.75 inches at 1.0 speed
+				moveForward(90); // move forward for 80 inches at 1.0 speed Originally 94.75
 				break;
 			///////////////////////////////////////
 			case Objective2:
-				moveForward(68.234); // move forward for 68.234 inches at 1.0 speed
-				turnRightGyro(30.0); // turn right to 30 degree
-				moveForward(66.217); // move forward 66.22 inches at 1.0 speed
+				moveForward(65); // move forward for 68.234 inches at 1.0 speed
+				turnLeftGyro(50.0); // turn right to 30 degree
+				moveForward(80); // move forward 66.22 inches at 1.0 speed
 				break;
 			///////////////////////////////////////
 			case Objective3:
-				moveForward(68.234); // move forward for 68.234 inches at 1.0 speed
-				turnLeftGyro(30.0); // turn left to 30 degree
-				moveForward(66.217); // move forward 66.22 inches at 1.0 speed
+				moveForward(65); // move forward for 68.234 inches at 1.0 speed
+				turnRightGyro(50.0); // turn left to 30 degree
+				moveForward(80); // move forward 66.22 inches at 1.0 speed
 				break;
 			///////////////////////////////////////
 			case Objective4:
@@ -186,8 +186,8 @@ public class Robot extends IterativeRobot {
 				moveBackward(13.0); // move backward for 13 in at 1.0 speed
 				if (currentColor() == "Blue") turnRightGyro(23.0); // if blue turn right
 				else turnLeftGyro(23.0); // if red turn left
-				shootFor(2.0, true, false); // spin up shooter for 2 seconds
-				shootFor(5.0, true, true); // shoot balls for 5 seconds
+				shootFor(.2, true, false); // spin up shooter for 2 seconds
+				shootFor(4.0, true, true); // shoot balls for 5 seconds
 				shooterManager(false, false); // disable shooter
 				if (autoSelected == Objective45) {
 					if (currentColor() == "Blue") turnRightGyro(148.0); // if blue turn right
@@ -218,17 +218,14 @@ public class Robot extends IterativeRobot {
 				mecanumDrive.stop(); // Stop all motor movement
 				break;
 			}
+			mecanumDrive.stop(); // stop all motors
 		}
 		autoOnce = false; // reset autoOnce
-		mecanumDrive.stop(); // stop all motors
 	}
 
 	boolean fullSpeed = false;
 
 	public void teleopInit() {
-		// stop all motor movement
-		mecanumDrive.stop();
-
 		// initiate mecanum drive mode
 		mecanumDrive.setCANTalonDriveMode(CANTalon.TalonControlMode.PercentVbus);
 
@@ -243,9 +240,14 @@ public class Robot extends IterativeRobot {
 
 		// set how fast the robot rotates
 		mecanumDrive.setTwistMultiplyer(0.3);
+		
+		// stop all robot movement
+		// mecanumDrive.stop();
+		gearManager(false);
 	}
 
 	public void teleopPeriodic() {
+		
 		// set primary - driver
 		if (driver.getSelected() == Caleb)
 			d = 1;
@@ -304,14 +306,14 @@ public class Robot extends IterativeRobot {
 		}
 
 		// set how to operate gear
-		gearManager(buttonJoystick.getRawButton(sDriverArray[o][3]));
+		//gearManager(buttonJoystick.getRawButton(sDriverArray[o][3]));
+		
+		boolean go = false;
+		if(buttonJoystick.getRawButton(sDriverArray[o][3])) go = true;
+		if(go) gearManager(false);
 
 		// set how to activate climber
-		if (Timer.getMatchTime() > 60.0) {
-			climberManager(buttonJoystick.getRawButton(sDriverArray[o][2]));
-		} else {
-			climberManager(false);
-		}
+		climberManager(buttonJoystick.getRawButton(sDriverArray[o][2]));
 
 		// set how to operate agitator and shooter
 		shooterManager(buttonJoystick.getRawButton(2), buttonJoystick.getRawButton(1));
@@ -342,7 +344,7 @@ public class Robot extends IterativeRobot {
 
 	public void climberManager(boolean climb) {
 		if (climb) {
-			climberMotor.setSpeed(0.7);
+			climberMotor.setSpeed(1);
 		} else {
 			climberMotor.setSpeed(0.0);
 		}
@@ -377,6 +379,7 @@ public class Robot extends IterativeRobot {
 
 	public void testInit() {
 		mecanumDrive.resetEncoders(); // reset encoders
+		mecanumDrive.stop(); // stop all motors
 		gyro.reset(); // reset gyro
 		gearManager(false); // keep gear servos closed
 		climberManager(false); // keep climber off
@@ -395,14 +398,16 @@ public class Robot extends IterativeRobot {
 		}
 		if (!once) { // BEGIN TEST
 
-			mecanumDrive.resetEncoders();
-			
 			moveForward(10.0);
 			// strafeLeft(2.0);
 			// visionTurn();
 			
 		} // END TEST
-		mecanumDrive.stop();
-		once = true;
+		mecanumDrive.stop(); // stop all motors
+		gearManager(false); // keep gear servos closed
+		climberManager(false); // keep climber off
+		shooterManager(false, false); // dont shoot
+		harvesterManager(false, false); //dont harvest
+		once = true; // code has run once
 	}
 }

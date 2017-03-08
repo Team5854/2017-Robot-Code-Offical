@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class AutoMethods {
 
+	static int repeatTime = 5;
+	
 	static EightDrive mecanumDrive = Robot.mecanumDrive;
 	static ADXRS450_Gyro gyro = Robot.gyro;
 	static double gyroAngle = 0;
@@ -47,7 +49,7 @@ public class AutoMethods {
 			mecanumDrive.mecanumDrive_Polar(0, 0, speed);
 		}
 
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < repeatTime; i++) {
 			mecanumDrive.moveLeftSide(0);
 			mecanumDrive.moveRightSide(0);
 			mecanumDrive.resetEncoders();
@@ -67,7 +69,7 @@ public class AutoMethods {
 			mecanumDrive.mecanumDrive_Polar(0, 0, -speed);
 		}
 
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < repeatTime; i++) {
 			mecanumDrive.moveLeftSide(0);
 			mecanumDrive.moveRightSide(0);
 			mecanumDrive.resetEncoders();
@@ -115,7 +117,7 @@ public class AutoMethods {
 			}
 		}
 
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < repeatTime; i++) {
 			mecanumDrive.moveLeftSide(0);
 			mecanumDrive.moveRightSide(0);
 			mecanumDrive.resetEncoders();
@@ -159,7 +161,7 @@ public class AutoMethods {
 			}
 		}
 
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < repeatTime; i++) {
 			mecanumDrive.moveLeftSide(0);
 			mecanumDrive.moveRightSide(0);
 			mecanumDrive.resetEncoders();

@@ -8,9 +8,9 @@ import edu.wpi.cscore.VideoMode;
 
 public class CameraStreamer
 {
-  private UsbCamera usbCamera0=  new UsbCamera("USB Camera 0", 0);
-  private UsbCamera usbCamera1=  new UsbCamera("USB Camera 1", 1);
-  private UsbCamera usbCamera2=  new UsbCamera("USB Camera 2", 2);
+  private static UsbCamera usbCamera0=  new UsbCamera("USB Camera 0", 0);
+  private static UsbCamera usbCamera1=  new UsbCamera("USB Camera 1", 1);
+  private static UsbCamera usbCamera2=  new UsbCamera("USB Camera 2", 2);
   private MjpegServer mjpegServer1;
   private CvSink cvSink;
   private CvSource outputStream;
@@ -46,13 +46,12 @@ public class CameraStreamer
     mjpegServer2.setSource(outputStream);
   }
   
-  public void setBrightness(int brightness)
+  public static void setBrightness(int brightness)
   {
 	usbCamera0.setBrightness(brightness);
     usbCamera1.setBrightness(brightness);
     usbCamera2.setBrightness(brightness);
   }  
-  
   public void setResolution()
   {
 	usbCamera0.setResolution(640, 400);
