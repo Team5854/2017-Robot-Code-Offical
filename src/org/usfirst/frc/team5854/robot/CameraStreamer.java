@@ -9,27 +9,31 @@ import edu.wpi.cscore.VideoMode;
 public class CameraStreamer
 {
   private static UsbCamera usbCamera0=  new UsbCamera("USB Camera 0", 0);
-  private static UsbCamera usbCamera1=  new UsbCamera("USB Camera 1", 1);
-  private static UsbCamera usbCamera2=  new UsbCamera("USB Camera 2", 2);
+  //private static UsbCamera usbCamera1=  new UsbCamera("USB Camera 1", 1);
+  //private static UsbCamera usbCamera2=  new UsbCamera("USB Camera 2", 2);
   private MjpegServer mjpegServer1;
   private CvSink cvSink;
   private CvSource outputStream;
   private MjpegServer mjpegServer2;
   
   public void setCameraNumber(int id) {
-	  switch (id) {
-	  case 0:
 		  mjpegServer1.setSource(usbCamera0);
-		  break;
-	  case 1:
-		  mjpegServer1.setSource(usbCamera1);
-		  break;
-	  case 2:
-		  mjpegServer1.setSource(usbCamera2);
-		  break;
-
-	  }
   }
+  
+//  public void setCameraNumber(int id) {
+//	  switch (id) {
+//	  case 0:
+//		  mjpegServer1.setSource(usbCamera0);
+//		  break;
+//	  case 1:
+//		  mjpegServer1.setSource(usbCamera1);
+//		  break;
+//	  case 2:
+//		  mjpegServer1.setSource(usbCamera2);
+//		  break;
+//
+//	  }
+//  }
   
   public CameraStreamer(int port)
   {
@@ -49,14 +53,14 @@ public class CameraStreamer
   public static void setBrightness(int brightness)
   {
 	usbCamera0.setBrightness(brightness);
-    usbCamera1.setBrightness(brightness);
-    usbCamera2.setBrightness(brightness);
+//    usbCamera1.setBrightness(brightness);
+//    usbCamera2.setBrightness(brightness);
   }  
   public void setResolution()
   {
-	usbCamera0.setResolution(640, 400);
-    usbCamera1.setResolution(640, 400);
-    usbCamera2.setResolution(640, 400);
+	  usbCamera0.setResolution(640, 400);
+//    usbCamera1.setResolution(640, 400);
+//    usbCamera2.setResolution(640, 400);
   }
   
 }

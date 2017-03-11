@@ -1,18 +1,15 @@
 package org.usfirst.frc.team5854.robot;
 
-import static org.usfirst.frc.team5854.robot.AutoMethods.moveForward;
-import static org.usfirst.frc.team5854.robot.AutoMethods.moveBackward;
-import static org.usfirst.frc.team5854.robot.AutoMethods.turnLeftGyro;
-import static org.usfirst.frc.team5854.robot.AutoMethods.turnRightGyro;
-import static org.usfirst.frc.team5854.robot.AutoMethods.strafeLeft;
-import static org.usfirst.frc.team5854.robot.AutoMethods.strafeRight;
-import static org.usfirst.frc.team5854.robot.AutoMethods.shootFor;
-import static org.usfirst.frc.team5854.robot.AutoMethods.visionTurn;
-
 import static org.usfirst.frc.team5854.Utils.SpecialFunctions.currentColor;
 import static org.usfirst.frc.team5854.Utils.SpecialFunctions.map;
+import static org.usfirst.frc.team5854.robot.AutoMethods.moveBackward;
+import static org.usfirst.frc.team5854.robot.AutoMethods.moveForward;
+import static org.usfirst.frc.team5854.robot.AutoMethods.shootFor;
+import static org.usfirst.frc.team5854.robot.AutoMethods.turnLeftGyro;
+import static org.usfirst.frc.team5854.robot.AutoMethods.turnRightGyro;
 
 import org.usfirst.frc.team5854.Utils.EightDrive;
+
 import com.ctre.CANTalon;
 
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
@@ -20,7 +17,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Servo;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -45,11 +41,11 @@ public class Robot extends IterativeRobot {
 	final String Objective0 = "Objective #0";
 	final String Objective1 = "Objective #1";
 	final String Objective2 = "Objective #2";
-	final String Objective27 = "Objective #27";
 	final String Objective3 = "Objective #3";
-	final String Objective37 = "Objective #37";
 	final String Objective4 = "Objective #4";
 	final String Objective45 = "Objective #45";
+	final String Objective27 = "Objective #27";
+	final String Objective37 = "Objective #37";
 	String autoSelected;
 	SendableChooser<String> chooser;
 
@@ -121,11 +117,11 @@ public class Robot extends IterativeRobot {
 		chooser.addDefault("Objective #0", Objective0);
 		chooser.addObject("Objective #1", Objective1);
 		chooser.addObject("Objective #2", Objective2);
-		chooser.addObject("Objective #2 + #7", Objective27);
 		chooser.addObject("Objective #3", Objective3);
-		chooser.addObject("Objective #3 + #7", Objective37);
 		chooser.addObject("Objective #4", Objective4);
 		chooser.addObject("Objective #4 + #5", Objective45);
+		chooser.addObject("Objective #2 + #7", Objective27);
+		chooser.addObject("Objective #3 + #7", Objective37);
 		SmartDashboard.putData("Autonomous choices", chooser);
 
 		// Setup Camera - Default to Gear Camera
@@ -167,18 +163,18 @@ public class Robot extends IterativeRobot {
 				break;
 			///////////////////////////////////////
 			case Objective1:
-				moveForward(90); // move forward for 80 inches at 1.0 speed Originally 94.75
+				moveForward(110); // move forward for 80 inches at 1.0 speed Originally 94.75
 				break;
 			///////////////////////////////////////
 			case Objective2:
 			case Objective27:
-				moveForward(65); // move forward for 68.234 inches at 1.0 speed
+				moveForward(80); // move forward for 68.234 inches at 1.0 speed
 				turnLeftGyro(50.0); // turn right to 30 degree
 				moveForward(80); // move forward 66.22 inches at 1.0 speed
-				if(autoSelected == Objective27)
-				{
-					moveBackward(84);
-					turnRightGyro(148.3);
+				if(autoSelected == Objective27){
+					moveBackward(0.0);
+					turnRightGyro(0.0);
+					moveForward(0.0);
 					shootFor(0.2, true, false);
 					shootFor(4.0, true, true);
 				}
@@ -186,15 +182,15 @@ public class Robot extends IterativeRobot {
 			///////////////////////////////////////
 			case Objective3:
 			case Objective37:
-				moveForward(65); // move forward for 68.234 inches at 1.0 speed
+				moveForward(80); // move forward for 68.234 inches at 1.0 speed
 				turnRightGyro(50.0); // turn left to 30 degree
 				moveForward(80); // move forward 66.22 inches at 1.0 speed
-				if(autoSelected == Objective37)
-				{
-					moveBackward(84);
-					turnLeftGyro(148.3);
-					shootFor(0.2, true, false);
-					shootFor(10.0, true, true);
+				if(autoSelected == Objective37){
+				moveBackward(0.0);
+				turnLeftGyro(0.0);
+				moveForward(0.0);
+				shootFor(0.2, true, false);
+				shootFor(4.0, false, false);
 				}
 				break;
 			///////////////////////////////////////
@@ -210,9 +206,6 @@ public class Robot extends IterativeRobot {
 					if (currentColor() == "Blue") turnRightGyro(148.0); // if blue turn right
 					else turnLeftGyro(148.0); // if red turn left
 					moveForward(100.0); // move forward for 100 inches at 1.0 speed
-					gearManager(true); // open gear servos
-					moveBackward(8.0); // move backward for 8 inches at 1.0  speed
-					gearManager(false); // close gear servos
 				}
 				break;
 			//////////////////////////////////
@@ -245,7 +238,7 @@ public class Robot extends IterativeRobot {
 		
 		// stop all robot movement
 		// mecanumDrive.stop();
-		gearManager(false);
+
 	}
 
 	public void teleopPeriodic() {
@@ -273,8 +266,8 @@ public class Robot extends IterativeRobot {
 			o = 0;
 
 		// sets how fast you can rotate the robot
-		if (mainJoystick.getRawButton(pDriverArray[d][6]) || altJoystick.getRawButton(pDriverArray[d][6])) {
-			while (mainJoystick.getRawButton(pDriverArray[d][6]) || altJoystick.getRawButton(pDriverArray[d][6])) {}
+		if (altJoystick.getRawButton(pDriverArray[d][6])) {
+			while (altJoystick.getRawButton(pDriverArray[d][6])) {}
 			fullSpeed = !fullSpeed;
 
 			if (fullSpeed) {
@@ -284,18 +277,6 @@ public class Robot extends IterativeRobot {
 				mecanumDrive.setSpeedMultiplyer(0.5);
 				mecanumDrive.setTwistMultiplyer(0.3);
 			}
-		}
-
-		// manage the toggle between cameras
-		if (mainJoystick.getRawButton(pDriverArray[d][4]) || altJoystick.getRawButton(pDriverArray[d][4]) || buttonJoystick.getRawButton(sDriverArray[o][5])) {
-			while (mainJoystick.getRawButton(pDriverArray[d][4]) || altJoystick.getRawButton(pDriverArray[d][4]) || buttonJoystick.getRawButton(sDriverArray[o][5])) {}
-			cameraServer.setCameraNumber(1); // change camera to gear
-		} else if (mainJoystick.getRawButton(pDriverArray[d][3]) || altJoystick.getRawButton(pDriverArray[d][3]) || buttonJoystick.getRawButton(sDriverArray[o][4])) {
-			while (mainJoystick.getRawButton(pDriverArray[d][3]) || altJoystick.getRawButton(pDriverArray[d][3]) || buttonJoystick.getRawButton(sDriverArray[o][4])) {}
-			cameraServer.setCameraNumber(0); // change camera to climber
-		} else if (mainJoystick.getRawButton(pDriverArray[d][5]) || altJoystick.getRawButton(pDriverArray[d][5]) || buttonJoystick.getRawButton(sDriverArray[o][6])) {
-			while (mainJoystick.getRawButton(pDriverArray[d][5]) || altJoystick.getRawButton(pDriverArray[d][5]) || buttonJoystick.getRawButton(sDriverArray[o][6])) {}
-			cameraServer.setCameraNumber(2); // change camera to shooter
 		}
 
 		// set how the robot drive is manipulated
@@ -342,7 +323,7 @@ public class Robot extends IterativeRobot {
 
 	public void climberManager(boolean climb) {
 		if (climb) {
-			climberMotor.setSpeed(1);
+			climberMotor.setSpeed(map(buttonJoystick.getThrottle(), -1, 1, 1, .50));
 		} else {
 			climberMotor.setSpeed(0.0);
 		}

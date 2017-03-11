@@ -92,9 +92,9 @@ public class AutoMethods {
 
 		while (rotation < desRotation) {
 			if (rotation < (desRotation / 2)) {
-				speed = SpecialFunctions.map(mecanumDrive.getEncValueRight(), 0, desRotation / 2, .3, .7);
+				speed = SpecialFunctions.map(mecanumDrive.getEncValueRight(), 0, desRotation / 2, .3, .5);
 			} else {
-				speed = SpecialFunctions.map(mecanumDrive.getEncValueRight(), desRotation / 2, desRotation, .7, .2);
+				speed = SpecialFunctions.map(mecanumDrive.getEncValueRight(), desRotation / 2, desRotation, .5, .2);
 			}
 			
 			highSpeed = speed;
