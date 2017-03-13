@@ -379,7 +379,6 @@ public class Robot extends IterativeRobot {
 
 			moveForward(10.0);
 			// strafeLeft(2.0);
-			// visionTurn();
 			
 		} // END TEST
 		mecanumDrive.stop(); // stop all motors

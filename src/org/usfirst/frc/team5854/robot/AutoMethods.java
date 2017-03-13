@@ -5,11 +5,13 @@ import org.usfirst.frc.team5854.Utils.EightDrive;
 import org.usfirst.frc.team5854.Utils.SpecialFunctions;
 import static org.usfirst.frc.team5854.Utils.SpecialFunctions.map;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 
 public class AutoMethods {
 
 	static int repeatTime = 5;
+	public static boolean currentState = true;
 	
 	static EightDrive mecanumDrive = Robot.mecanumDrive;
 	static ADXRS450_Gyro gyro = Robot.gyro;
@@ -38,15 +40,15 @@ public class AutoMethods {
 	public static void turnRightGyro(double angle) {
 		double otherNumber = 0.0;
 		double speed = 0.0;
-		
 
 		gyro.reset();
 
-		while (angle - angleError > otherNumber) {
+		while ((angle - angleError > otherNumber) && currentState) {
 			otherNumber = Math.abs(gyro.getAngle());
 			System.out.println("Gyro : " + otherNumber);
 			speed = map(otherNumber, 0, angle, .75, .2);
 			mecanumDrive.mecanumDrive_Polar(0, 0, speed);
+			currentState = DriverStation.getInstance().isAutonomous();
 		}
 
 		for (int i = 0; i < repeatTime; i++) {
@@ -62,11 +64,12 @@ public class AutoMethods {
 
 		gyro.reset();
 
-		while (angle - angleError > otherNumber) {
+		while ((angle - angleError > otherNumber) && currentState) {
 			otherNumber = Math.abs(gyro.getAngle());
 			System.out.println("Gyro : " + otherNumber);
 			speed = map(otherNumber, 0, angle, .75, .2);
 			mecanumDrive.mecanumDrive_Polar(0, 0, -speed);
+			currentState = DriverStation.getInstance().isAutonomous();
 		}
 
 		for (int i = 0; i < repeatTime; i++) {
@@ -90,7 +93,7 @@ public class AutoMethods {
 		
 		mecanumDrive.resetEncoders();
 
-		while (rotation < desRotation) {
+		while ((rotation < desRotation) && currentState) {
 			if (rotation < (desRotation / 2)) {
 				speed = SpecialFunctions.map(mecanumDrive.getEncValueRight(), 0, desRotation / 2, .3, .5);
 			} else {
@@ -115,6 +118,8 @@ public class AutoMethods {
 				mecanumDrive.moveLeftSide(highSpeed);
 				mecanumDrive.moveRightSide(highSpeed);
 			}
+
+			currentState = DriverStation.getInstance().isAutonomous();
 		}
 
 		for (int i = 0; i < repeatTime; i++) {
@@ -136,7 +141,7 @@ public class AutoMethods {
 
 		mecanumDrive.resetEncoders();
 
-		while (rotation < desRotation) {
+		while ((rotation < desRotation) && currentState) {
 			if (rotation < (desRotation / 2)) {
 				speed = SpecialFunctions.map(mecanumDrive.getEncValueRight(), 0, desRotation / 2, .3, .7);
 			} else {
@@ -159,6 +164,7 @@ public class AutoMethods {
 				mecanumDrive.moveLeftSide(highSpeed);
 				mecanumDrive.moveRightSide(highSpeed);
 			}
+			currentState = DriverStation.getInstance().isAutonomous();
 		}
 
 		for (int i = 0; i < repeatTime; i++) {
