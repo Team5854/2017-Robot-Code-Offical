@@ -5,8 +5,8 @@ import static org.usfirst.frc.team5854.Utils.SpecialFunctions.map;
 import static org.usfirst.frc.team5854.robot.AutoMethods.moveBackward;
 import static org.usfirst.frc.team5854.robot.AutoMethods.moveForward;
 import static org.usfirst.frc.team5854.robot.AutoMethods.shootFor;
-import static org.usfirst.frc.team5854.robot.AutoMethods.turnLeftGyro;
 import static org.usfirst.frc.team5854.robot.AutoMethods.turnRightGyro;
+import static org.usfirst.frc.team5854.robot.AutoMethods.turnLeftGyro;
 
 import org.usfirst.frc.team5854.Utils.EightDrive;
 
@@ -49,7 +49,7 @@ public class Robot extends IterativeRobot {
 	String autoSelected;
 	SendableChooser<String> chooser;
 
-	// Setup variables for drivers and operaters
+	// Setup variables for drivers and operators
 	final String Default = "driverDefault";
 	final String Caleb = "driverCaleb";
 	final String Abby = "driverAbby";
@@ -62,7 +62,7 @@ public class Robot extends IterativeRobot {
 	// Setup camera variables
 	CameraStreamer cameraServer;
 
-	// Setup driver array (Default)(Caleb)(Abby)(Aeron)
+	// Setup driver array (Default)(Caleb)(Abby)(Aeron)  (buttons: forward, side, twist, cam1, cam2, cam3, speed)
 	int pDriverArray[][] = { { 0, 1, 2, 4, 3, 1, 2 }, { 2, 3, 0, 4, 3, 1, 6 }, { 0, 1, 2, 3, 4, 1, 2 }, { 0, 1, 2, 3, 2, 4, 8 } };
 
 	// setup driver array (Default)(Abby)(Aeron)(Jacob)(Josh)
@@ -168,43 +168,47 @@ public class Robot extends IterativeRobot {
 			///////////////////////////////////////
 			case Objective2:
 			case Objective27:
-				moveForward(80); // move forward for 68.234 inches at 1.0 speed
-				turnLeftGyro(50.0); // turn right to 30 degree
-				moveForward(80); // move forward 66.22 inches at 1.0 speed
-				if(autoSelected == Objective27){
-					moveBackward(0.0);
-					turnRightGyro(0.0);
-					moveForward(0.0);
+				moveForward(84); // move forward for 68.234 inches at 1.0 speed
+				turnRightGyro(57.0); // turn left to 30 degree
+				moveForward(99); // move forward 66.22 inches at 1.0 speed
+				if(autoSelected == Objective27 && AutoMethods.checkAuton()){
+					gearManager(true);
+					for(int i = 0; i < 2; i++){}
+					moveBackward(20.0);
+					turnRightGyro(153.0);
+					moveForward(93.0);
 					shootFor(0.2, true, false);
-					shootFor(4.0, true, true);
+					shootFor(5.0, true, true);
 				}
 				break;
 			///////////////////////////////////////
 			case Objective3:
 			case Objective37:
-				moveForward(80); // move forward for 68.234 inches at 1.0 speed
-				turnRightGyro(50.0); // turn left to 30 degree
-				moveForward(80); // move forward 66.22 inches at 1.0 speed
-				if(autoSelected == Objective37){
-				moveBackward(0.0);
-				turnLeftGyro(0.0);
-				moveForward(0.0);
-				shootFor(0.2, true, false);
-				shootFor(4.0, false, false);
+				moveForward(84); // move forward for 68.234 inches at 1.0 speed
+				turnLeftGyro(57.0); // turn left to 30 degree
+				moveForward(99); // move forward 66.22 inches at 1.0 speed
+				if(autoSelected == Objective37 && AutoMethods.checkAuton()){
+					gearManager(true);
+					for(int i = 0; i < 2; i++){}
+					moveBackward(20.0);
+					turnLeftGyro(153.0);
+					moveForward(91.0);
+					shootFor(0.2, true, false);
+					shootFor(5.0, true, true);
 				}
 				break;
 			///////////////////////////////////////
 			case Objective4:
 			case Objective45:
 				moveBackward(13.0); // move backward for 13 in at 1.0 speed
-				if (currentColor() == "Blue") turnRightGyro(23.0); // if blue turn right
-				else turnLeftGyro(23.0); // if red turn left
+				if (currentColor() == "Blue") turnLeftGyro(23.0); // if blue turn right
+				else turnRightGyro(23.0); // if red turn left
 				shootFor(.2, true, false); // spin up shooter for 2 seconds
 				shootFor(4.0, true, true); // shoot balls for 5 seconds
 				shooterManager(false, false); // disable shooter
-				if (autoSelected == Objective45) {
-					if (currentColor() == "Blue") turnRightGyro(148.0); // if blue turn right
-					else turnLeftGyro(148.0); // if red turn left
+				if (autoSelected == Objective45 && AutoMethods.checkAuton()) {
+					if (currentColor() == "Blue") turnLeftGyro(148.0); // if blue turn right
+					else turnRightGyro(148.0); // if red turn left
 					moveForward(100.0); // move forward for 100 inches at 1.0 speed
 				}
 				break;
@@ -269,7 +273,7 @@ public class Robot extends IterativeRobot {
 		if (altJoystick.getRawButton(pDriverArray[d][6])) {
 			while (altJoystick.getRawButton(pDriverArray[d][6])) {}
 			fullSpeed = !fullSpeed;
-
+			
 			if (fullSpeed) {
 				mecanumDrive.setSpeedMultiplyer(1.0);
 				mecanumDrive.setTwistMultiplyer(0.8);
@@ -279,9 +283,18 @@ public class Robot extends IterativeRobot {
 			}
 		}
 
+//		if (mainJoystick.getRawButton(pDriverArray[d][6])) {
+//			mecanumDrive.setSpeedMultiplyer(1.0);
+//			mecanumDrive.setTwistMultiplyer(0.8);
+//		} else {
+//			mecanumDrive.setSpeedMultiplyer(0.5);
+//			mecanumDrive.setTwistMultiplyer(0.3);
+//		}
+		
+		
 		// set how the robot drive is manipulated
-		if (mainJoystick.getName().startsWith("FR SKY")) {
-			mecanumDrive.mecanumDrive_Cartesian(mainJoystick.getRawAxis(2), mainJoystick.getRawAxis(3), mainJoystick.getRawAxis(0), 0);
+		if (mainJoystick.getName().startsWith("HK-MT6")) {
+			mecanumDrive.mecanumDrive_Cartesian(mainJoystick.getRawAxis(pDriverArray[d][0]), mainJoystick.getRawAxis(pDriverArray[d][1]), mainJoystick.getRawAxis(pDriverArray[d][2]), 0);
 		} else if (!altJoystick.getName().equals("")) {
 			mecanumDrive.mecanumDrive_Cartesian(altJoystick.getRawAxis(pDriverArray[d][0]), altJoystick.getRawAxis(pDriverArray[d][1]), altJoystick.getRawAxis(pDriverArray[d][2]), 0);
 		} else {
@@ -323,7 +336,7 @@ public class Robot extends IterativeRobot {
 
 	public void climberManager(boolean climb) {
 		if (climb) {
-			climberMotor.setSpeed(map(buttonJoystick.getThrottle(), -1, 1, 1, .50));
+			climberMotor.setSpeed(map(buttonJoystick.getThrottle(), -1, 1, -1, -.50));
 		} else {
 			climberMotor.setSpeed(0.0);
 		}
@@ -331,7 +344,7 @@ public class Robot extends IterativeRobot {
 
 	public static void shooterManager(boolean shoot, boolean agitate) {
 		double shooterSpeed = -1.0;
-		double agitatorSpeed = 0.7;
+		double agitatorSpeed = 0.5;
 		boolean isAuton = DriverStation.getInstance().isAutonomous();
 		if (!shoot && agitate) { // reverse agitator
 			shooterMotor.setSpeed(0.0);

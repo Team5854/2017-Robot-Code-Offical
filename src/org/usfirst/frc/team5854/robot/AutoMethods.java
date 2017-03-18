@@ -29,15 +29,15 @@ public class AutoMethods {
 		Angle = Math.abs(Angle);
 
 		if (directionChar == 'L') {
-			turnLeftGyro(Angle);
-		} else {
 			turnRightGyro(Angle);
+		} else {
+			turnLeftGyro(Angle);
 		}
 	}
 
 	static double angleError = 2.5;
 
-	public static void turnRightGyro(double angle) {
+	public static void turnLeftGyro(double angle) {
 		double otherNumber = 0.0;
 		double speed = 0.0;
 
@@ -46,7 +46,7 @@ public class AutoMethods {
 		while ((angle - angleError > otherNumber) && currentState) {
 			otherNumber = Math.abs(gyro.getAngle());
 			System.out.println("Gyro : " + otherNumber);
-			speed = map(otherNumber, 0, angle, .75, .2);
+			speed = map(otherNumber, 0, angle, .5, .2);
 			mecanumDrive.mecanumDrive_Polar(0, 0, speed);
 			currentState = DriverStation.getInstance().isAutonomous();
 		}
@@ -58,7 +58,7 @@ public class AutoMethods {
 		}
 	}
 
-	public static void turnLeftGyro(double angle) {
+	public static void turnRightGyro(double angle) {
 		double otherNumber = 0.0;
 		double speed = .5;
 
@@ -67,7 +67,7 @@ public class AutoMethods {
 		while ((angle - angleError > otherNumber) && currentState) {
 			otherNumber = Math.abs(gyro.getAngle());
 			System.out.println("Gyro : " + otherNumber);
-			speed = map(otherNumber, 0, angle, .75, .2);
+			speed = map(otherNumber, 0, angle, .5, .2);
 			mecanumDrive.mecanumDrive_Polar(0, 0, -speed);
 			currentState = DriverStation.getInstance().isAutonomous();
 		}
@@ -97,7 +97,7 @@ public class AutoMethods {
 			if (rotation < (desRotation / 2)) {
 				speed = SpecialFunctions.map(mecanumDrive.getEncValueRight(), 0, desRotation / 2, .3, .5);
 			} else {
-				speed = SpecialFunctions.map(mecanumDrive.getEncValueRight(), desRotation / 2, desRotation, .5, .2);
+				speed = SpecialFunctions.map(mecanumDrive.getEncValueRight(), desRotation / 2, desRotation, .5, .1);
 			}
 			
 			highSpeed = speed;
@@ -175,6 +175,7 @@ public class AutoMethods {
 	}
 
 	public static void strafeRight(double seconds) {
+		if(!checkAuton()) return;
 		mecanumDrive.mecanumDrive_Cartesian(-1, 0, 0, 0);
 		Timer.delay(seconds);
 		mecanumDrive.mecanumDrive_Cartesian(0, 0, 0, 0);
@@ -182,14 +183,25 @@ public class AutoMethods {
 	}
 
 	public static void strafeLeft(double seconds) {
+		if(!checkAuton())return;
 		mecanumDrive.mecanumDrive_Cartesian(1, 0, 0, 0);
 		Timer.delay(seconds);
 		mecanumDrive.mecanumDrive_Cartesian(0, 0, 0, 0);
 
 	}
 
+	public static boolean checkAuton(){
+		boolean isAuton = DriverStation.getInstance().isAutonomous(); 
+		if(isAuton)
+			return true;
+		else
+			return false;
+	}
+	
 	public static void shootFor(double seconds, boolean shoot, boolean feed) {
+		if(!checkAuton())return;
 		shooterManager(shoot, feed);
+		seconds = seconds < 15.0 ? seconds : 15;
 		Timer.delay(seconds);
 	}
 

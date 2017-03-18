@@ -52,8 +52,8 @@ public class EightDrive {
 		
 		leftRearMotorOne.setFeedbackDevice(CANTalon.FeedbackDevice.QuadEncoder);
 		rightRearMotorOne.setFeedbackDevice(CANTalon.FeedbackDevice.QuadEncoder);
-		leftRearMotorOne.configEncoderCodesPerRev(90000);
-		rightRearMotorOne.configEncoderCodesPerRev(90000);
+		leftRearMotorOne.configEncoderCodesPerRev(900000000);
+		rightRearMotorOne.configEncoderCodesPerRev(900000000);
 
 		mecanumDriveOne = new RobotDrive(leftFrontMotorOne, leftRearMotorOne, rightFrontMotorOne, rightRearMotorOne);
 		mecanumDriveTwo = new RobotDrive(leftFrontMotorTwo, leftRearMotorTwo, rightFrontMotorTwo, rightRearMotorTwo);
