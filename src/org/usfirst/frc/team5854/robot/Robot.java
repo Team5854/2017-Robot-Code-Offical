@@ -28,6 +28,7 @@ public class Robot extends IterativeRobot {
 	static VictorSP shooterMotor;
 	static VictorSP agitatorMotor;
 	VictorSP climberMotor;
+	VictorSP climberMotor2;
 	VictorSP harvesterMotor;
 	Servo leftGearServo;
 	Servo rightGearServo;
@@ -49,7 +50,7 @@ public class Robot extends IterativeRobot {
 	String autoSelected;
 	SendableChooser<String> chooser;
 
-	// Setup variables for drivers and operaters
+	// Setup variables for drivers and operators
 	final String Default = "driverDefault";
 	final String Caleb = "driverCaleb";
 	final String Abby = "driverAbby";
@@ -60,7 +61,7 @@ public class Robot extends IterativeRobot {
 	SendableChooser<String> driver;
 
 	// Setup camera variables
-	CameraStreamer cameraServer;
+	//CameraStreamer cameraServer;
 
 	// Setup driver array (Default)(Caleb)(Abby)(Aeron)  (buttons: forward, side, twist, cam1, cam2, cam3, speed)
 	int pDriverArray[][] = { { 0, 1, 2, 4, 3, 1, 2 }, { 2, 3, 0, 4, 3, 1, 6 }, { 0, 1, 2, 3, 4, 1, 2 }, { 0, 1, 2, 3, 2, 4, 8 } };
@@ -85,6 +86,7 @@ public class Robot extends IterativeRobot {
 		shooterMotor = new VictorSP(3);
 		agitatorMotor = new VictorSP(4);
 		climberMotor = new VictorSP(5);
+		climberMotor2 = new VictorSP(6);
 
 		// Configure ports for each joystick.
 		buttonJoystick = new Joystick(0); // Buttons joystick
@@ -125,9 +127,9 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putData("Autonomous choices", chooser);
 
 		// Setup Camera - Default to Gear Camera
-		cameraServer = new CameraStreamer(1181);
-		cameraServer.setResolution();
-		cameraServer.setCameraNumber(0);
+		//cameraServer = new CameraStreamer(1181);
+		//cameraServer.setResolution();
+		//cameraServer.setCameraNumber(0);
 	}
 
 	boolean autoOnce = true;
@@ -170,14 +172,15 @@ public class Robot extends IterativeRobot {
 			case Objective27:
 				moveForward(84); // move forward for 68.234 inches at 1.0 speed
 				turnRightGyro(57.0); // turn left to 30 degree
-				moveForward(99); // move forward 66.22 inches at 1.0 speed
+				moveForward(102); // move forward 66.22 inches at 1.0 speed
 				if(autoSelected == Objective27 && AutoMethods.checkAuton()){
 					gearManager(true);
 					for(int i = 0; i < 2; i++){}
 					moveBackward(20.0);
-					turnRightGyro(153.0);
+					turnRightGyro(138.0);
 					moveForward(93.0);
-					shootFor(5.0, true, true);
+					shootFor(0.2, true, false);
+					shootFor(4.8, true, true);
 				}
 				break;
 			///////////////////////////////////////
@@ -185,14 +188,15 @@ public class Robot extends IterativeRobot {
 			case Objective37:
 				moveForward(84); // move forward for 68.234 inches at 1.0 speed
 				turnLeftGyro(57.0); // turn left to 30 degree
-				moveForward(99); // move forward 66.22 inches at 1.0 speed
+				moveForward(102); // move forward 66.22 inches at 1.0 speed
 				if(autoSelected == Objective37 && AutoMethods.checkAuton()){
 					gearManager(true);
 					for(int i = 0; i < 2; i++){}
 					moveBackward(20.0);
-					turnLeftGyro(153.0);
+					turnLeftGyro(145.0);
 					moveForward(91.0);
-					shootFor(5.0, true, true);
+					shootFor(0.2, true, false);
+					shootFor(4.8, true, true);
 				}
 				break;
 			///////////////////////////////////////
@@ -335,8 +339,10 @@ public class Robot extends IterativeRobot {
 	public void climberManager(boolean climb) {
 		if (climb) {
 			climberMotor.setSpeed(map(buttonJoystick.getThrottle(), -1, 1, -1, -.50));
+			climberMotor2.setSpeed(map(buttonJoystick.getThrottle(), -1, 1, 1, .50));
 		} else {
 			climberMotor.setSpeed(0.0);
+			climberMotor2.setSpeed(0.0);
 		}
 	}
 
