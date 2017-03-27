@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj.Timer;
 public class AutoMethods {
 
 	static int repeatTime = 5;
-	public static boolean currentState = true;
 	
 	static EightDrive mecanumDrive = Robot.mecanumDrive;
 	static ADXRS450_Gyro gyro = Robot.gyro;
@@ -43,12 +42,11 @@ public class AutoMethods {
 
 		gyro.reset();
 
-		while ((angle - angleError > otherNumber) && currentState) {
+		while ((angle - angleError > otherNumber) && checkAuton()) {
 			otherNumber = Math.abs(gyro.getAngle());
 			System.out.println("Gyro : " + otherNumber);
 			speed = map(otherNumber, 0, angle, .5, .2);
 			mecanumDrive.mecanumDrive_Polar(0, 0, speed);
-			currentState = DriverStation.getInstance().isAutonomous();
 		}
 
 		for (int i = 0; i < repeatTime; i++) {
@@ -64,12 +62,11 @@ public class AutoMethods {
 
 		gyro.reset();
 
-		while ((angle - angleError > otherNumber) && currentState) {
+		while ((angle - angleError > otherNumber) && checkAuton()) {
 			otherNumber = Math.abs(gyro.getAngle());
 			System.out.println("Gyro : " + otherNumber);
 			speed = map(otherNumber, 0, angle, .5, .2);
 			mecanumDrive.mecanumDrive_Polar(0, 0, -speed);
-			currentState = DriverStation.getInstance().isAutonomous();
 		}
 
 		for (int i = 0; i < repeatTime; i++) {
@@ -93,7 +90,7 @@ public class AutoMethods {
 		
 		mecanumDrive.resetEncoders();
 
-		while ((rotation < desRotation) && currentState) {
+		while ((rotation < desRotation) && checkAuton()) {
 			if (rotation < (desRotation / 2)) {
 				speed = SpecialFunctions.map(mecanumDrive.getEncValueRight(), 0, desRotation / 2, .3, .5);
 			} else {
@@ -118,8 +115,6 @@ public class AutoMethods {
 				mecanumDrive.moveLeftSide(highSpeed);
 				mecanumDrive.moveRightSide(highSpeed);
 			}
-
-			currentState = DriverStation.getInstance().isAutonomous();
 		}
 
 		for (int i = 0; i < repeatTime; i++) {
@@ -141,7 +136,7 @@ public class AutoMethods {
 
 		mecanumDrive.resetEncoders();
 
-		while ((rotation < desRotation) && currentState) {
+		while ((rotation < desRotation) && checkAuton()) {
 			if (rotation < (desRotation / 2)) {
 				speed = SpecialFunctions.map(mecanumDrive.getEncValueRight(), 0, desRotation / 2, .3, .7);
 			} else {
@@ -164,7 +159,6 @@ public class AutoMethods {
 				mecanumDrive.moveLeftSide(highSpeed);
 				mecanumDrive.moveRightSide(highSpeed);
 			}
-			currentState = DriverStation.getInstance().isAutonomous();
 		}
 
 		for (int i = 0; i < repeatTime; i++) {

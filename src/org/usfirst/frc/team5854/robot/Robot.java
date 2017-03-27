@@ -28,6 +28,7 @@ public class Robot extends IterativeRobot {
 	static VictorSP shooterMotor;
 	static VictorSP agitatorMotor;
 	VictorSP climberMotor;
+	VictorSP climberMotor2;
 	VictorSP harvesterMotor;
 	Servo leftGearServo;
 	Servo rightGearServo;
@@ -43,9 +44,9 @@ public class Robot extends IterativeRobot {
 	final String Objective2 = "Objective #2";
 	final String Objective3 = "Objective #3";
 	final String Objective4 = "Objective #4";
-	final String Objective45 = "Objective #45";
 	final String Objective27 = "Objective #27";
 	final String Objective37 = "Objective #37";
+	final String Objective45 = "Objective #45";
 	String autoSelected;
 	SendableChooser<String> chooser;
 
@@ -60,7 +61,7 @@ public class Robot extends IterativeRobot {
 	SendableChooser<String> driver;
 
 	// Setup camera variables
-	CameraStreamer cameraServer;
+	//CameraStreamer cameraServer;
 
 	// Setup driver array (Default)(Caleb)(Abby)(Aeron)  (buttons: forward, side, twist, cam1, cam2, cam3, speed)
 	int pDriverArray[][] = { { 0, 1, 2, 4, 3, 1, 2 }, { 2, 3, 0, 4, 3, 1, 6 }, { 0, 1, 2, 3, 4, 1, 2 }, { 0, 1, 2, 3, 2, 4, 8 } };
@@ -85,6 +86,7 @@ public class Robot extends IterativeRobot {
 		shooterMotor = new VictorSP(3);
 		agitatorMotor = new VictorSP(4);
 		climberMotor = new VictorSP(5);
+		climberMotor2 = new VictorSP(6);
 
 		// Configure ports for each joystick.
 		buttonJoystick = new Joystick(0); // Buttons joystick
@@ -119,15 +121,15 @@ public class Robot extends IterativeRobot {
 		chooser.addObject("Objective #2", Objective2);
 		chooser.addObject("Objective #3", Objective3);
 		chooser.addObject("Objective #4", Objective4);
-		chooser.addObject("Objective #4 + #5", Objective45);
 		chooser.addObject("Objective #2 + #7", Objective27);
 		chooser.addObject("Objective #3 + #7", Objective37);
+		chooser.addObject("Objective #4 + #5", Objective45);
 		SmartDashboard.putData("Autonomous choices", chooser);
 
 		// Setup Camera - Default to Gear Camera
-		cameraServer = new CameraStreamer(1181);
-		cameraServer.setResolution();
-		cameraServer.setCameraNumber(0);
+		//cameraServer = new CameraStreamer(1181);
+		//cameraServer.setResolution();
+		//cameraServer.setCameraNumber(0);
 	}
 
 	boolean autoOnce = true;
@@ -170,15 +172,15 @@ public class Robot extends IterativeRobot {
 			case Objective27:
 				moveForward(84); // move forward for 68.234 inches at 1.0 speed
 				turnRightGyro(57.0); // turn left to 30 degree
-				moveForward(99); // move forward 66.22 inches at 1.0 speed
+				moveForward(102); // move forward 66.22 inches at 1.0 speed
 				if(autoSelected == Objective27 && AutoMethods.checkAuton()){
 					gearManager(true);
 					for(int i = 0; i < 2; i++){}
 					moveBackward(20.0);
-					turnRightGyro(153.0);
+					turnRightGyro(138.0);
 					moveForward(93.0);
 					shootFor(0.2, true, false);
-					shootFor(5.0, true, true);
+					shootFor(4.8, true, true);
 				}
 				break;
 			///////////////////////////////////////
@@ -186,15 +188,15 @@ public class Robot extends IterativeRobot {
 			case Objective37:
 				moveForward(84); // move forward for 68.234 inches at 1.0 speed
 				turnLeftGyro(57.0); // turn left to 30 degree
-				moveForward(99); // move forward 66.22 inches at 1.0 speed
+				moveForward(102); // move forward 66.22 inches at 1.0 speed
 				if(autoSelected == Objective37 && AutoMethods.checkAuton()){
 					gearManager(true);
 					for(int i = 0; i < 2; i++){}
 					moveBackward(20.0);
-					turnLeftGyro(153.0);
+					turnLeftGyro(145.0);
 					moveForward(91.0);
 					shootFor(0.2, true, false);
-					shootFor(5.0, true, true);
+					shootFor(4.8, true, true);
 				}
 				break;
 			///////////////////////////////////////
@@ -282,15 +284,6 @@ public class Robot extends IterativeRobot {
 				mecanumDrive.setTwistMultiplyer(0.3);
 			}
 		}
-
-//		if (mainJoystick.getRawButton(pDriverArray[d][6])) {
-//			mecanumDrive.setSpeedMultiplyer(1.0);
-//			mecanumDrive.setTwistMultiplyer(0.8);
-//		} else {
-//			mecanumDrive.setSpeedMultiplyer(0.5);
-//			mecanumDrive.setTwistMultiplyer(0.3);
-//		}
-		
 		
 		// set how the robot drive is manipulated
 		if (mainJoystick.getName().startsWith("HK-MT6")) {
@@ -337,8 +330,10 @@ public class Robot extends IterativeRobot {
 	public void climberManager(boolean climb) {
 		if (climb) {
 			climberMotor.setSpeed(map(buttonJoystick.getThrottle(), -1, 1, -1, -.50));
+			climberMotor2.setSpeed(map(buttonJoystick.getThrottle(), -1, 1, 1, .50));
 		} else {
 			climberMotor.setSpeed(0.0);
+			climberMotor2.setSpeed(0.0);
 		}
 	}
 
