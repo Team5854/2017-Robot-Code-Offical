@@ -22,13 +22,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends IterativeRobot {
-
+	
+	
 	// Setup robot
 	public static EightDrive mecanumDrive;
 	static VictorSP shooterMotor;
 	static VictorSP agitatorMotor;
 	VictorSP climberMotor;
-	VictorSP climberMotor2;
 	VictorSP harvesterMotor;
 	Servo leftGearServo;
 	Servo rightGearServo;
@@ -86,7 +86,6 @@ public class Robot extends IterativeRobot {
 		shooterMotor = new VictorSP(3);
 		agitatorMotor = new VictorSP(4);
 		climberMotor = new VictorSP(5);
-		climberMotor2 = new VictorSP(6);
 
 		// Configure ports for each joystick.
 		buttonJoystick = new Joystick(0); // Buttons joystick
@@ -130,6 +129,7 @@ public class Robot extends IterativeRobot {
 		//cameraServer = new CameraStreamer(1181);
 		//cameraServer.setResolution();
 		//cameraServer.setCameraNumber(0);
+		(new Thread(new CameraSystem(2))).start();
 	}
 
 	boolean autoOnce = true;
@@ -283,16 +283,7 @@ public class Robot extends IterativeRobot {
 				mecanumDrive.setSpeedMultiplyer(0.5);
 				mecanumDrive.setTwistMultiplyer(0.3);
 			}
-		}
-
-//		if (mainJoystick.getRawButton(pDriverArray[d][6])) {
-//			mecanumDrive.setSpeedMultiplyer(1.0);
-//			mecanumDrive.setTwistMultiplyer(0.8);
-//		} else {
-//			mecanumDrive.setSpeedMultiplyer(0.5);
-//			mecanumDrive.setTwistMultiplyer(0.3);
-//		}
-		
+		}		
 		
 		// set how the robot drive is manipulated
 		if (mainJoystick.getName().startsWith("HK-MT6")) {
@@ -338,11 +329,9 @@ public class Robot extends IterativeRobot {
 
 	public void climberManager(boolean climb) {
 		if (climb) {
-			climberMotor.setSpeed(map(buttonJoystick.getThrottle(), -1, 1, -1, -.50));
-			climberMotor2.setSpeed(map(buttonJoystick.getThrottle(), -1, 1, 1, .50));
+			climberMotor.setSpeed(map(buttonJoystick.getThrottle(), -1, 1, 1, .50));
 		} else {
 			climberMotor.setSpeed(0.0);
-			climberMotor2.setSpeed(0.0);
 		}
 	}
 
