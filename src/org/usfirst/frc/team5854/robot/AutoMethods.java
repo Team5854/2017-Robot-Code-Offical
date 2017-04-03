@@ -42,14 +42,13 @@ public class AutoMethods {
 		double speed = 0.0;
 
 		gyro.reset();
-		
-		System.out.println("Desired Gyro Angle: " + -angle);
 
-		while ((angle - angleError > otherNumber) && checkAuton()) {
+		while ((angle - angleError > otherNumber) && currentState) {
 			otherNumber = Math.abs(gyro.getAngle());
-			System.out.println("Current Gyro Angle : " + -otherNumber);
+			System.out.println("Gyro : " + otherNumber);
 			speed = map(otherNumber, 0, angle, .5, .2);
 			mecanumDrive.mecanumDrive_Polar(0, 0, speed);
+			currentState = DriverStation.getInstance().isAutonomous();
 		}
 
 		for (int i = 0; i < repeatTime; i++) {
@@ -65,11 +64,12 @@ public class AutoMethods {
 
 		gyro.reset();
 
-		while ((angle - angleError > otherNumber) && checkAuton()) {
+		while ((angle - angleError > otherNumber) && currentState) {
 			otherNumber = Math.abs(gyro.getAngle());
-			System.out.println("Current Gyro Angle : " + otherNumber);
+			System.out.println("Gyro : " + otherNumber);
 			speed = map(otherNumber, 0, angle, .5, .2);
 			mecanumDrive.mecanumDrive_Polar(0, 0, -speed);
+			currentState = DriverStation.getInstance().isAutonomous();
 		}
 
 		for (int i = 0; i < repeatTime; i++) {
@@ -80,39 +80,6 @@ public class AutoMethods {
 	}
 
 	static int ticksPerRotation = 3100;
-	
-	public static void forwardWithSonar(double desDistance){
-		System.out.println("Desired Distance: " + desDistance);
-		
-		double speed = 0;
-		double sensorValue = 0;
-		double highSpeed;
-		double slowSpeed;
-		double maxValue = 25;
-		
-		while((sensorValue< desDistance || sensorValue == -1) && checkAuton()){
-			sensorValue = sensorValue == -1 ? maxValue : sensorValue;
-			speed = SpecialFunctions.map(sensorValue, 100, desDistance, .5, .2);
-			
-			highSpeed = speed;
-			slowSpeed = speed - 0.1;
-			
-			System.out.print("Current Distance: " + sensorValue + "   -->   ");
-			System.out.println("Desired Distance: " + desDistance);
-			
-			if (mecanumDrive.getEncValueLeft() < mecanumDrive.getEncValueRight()) {
-				mecanumDrive.moveLeftSide(highSpeed);
-				mecanumDrive.moveRightSide(slowSpeed);
-			} else if (mecanumDrive.getEncValueRight() < mecanumDrive.getEncValueLeft()) {
-				mecanumDrive.moveLeftSide(slowSpeed);
-				mecanumDrive.moveRightSide(highSpeed);
-			} else {
-				mecanumDrive.moveLeftSide(highSpeed);
-				mecanumDrive.moveRightSide(highSpeed);
-			}
-		}
-	}
-	
 	
 	public static void moveForward(double inches) {
 		double converstion = (ticksPerRotation / (6 * Math.PI));
@@ -151,6 +118,8 @@ public class AutoMethods {
 				mecanumDrive.moveLeftSide(highSpeed);
 				mecanumDrive.moveRightSide(highSpeed);
 			}
+
+			currentState = DriverStation.getInstance().isAutonomous();
 		}
 
 		for (int i = 0; i < repeatTime; i++) {
@@ -222,11 +191,7 @@ public class AutoMethods {
 	}
 
 	public static boolean checkAuton(){
-		boolean isAuton = DriverStation.getInstance().isAutonomous(); 
-		if(isAuton)
-			return true;
-		else
-			return false;
+		return DriverStation.getInstance().isAutonomous(); 
 	}
 	
 	public static void shootFor(double seconds, boolean shoot, boolean feed) {
