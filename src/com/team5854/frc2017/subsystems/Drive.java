@@ -5,6 +5,8 @@ import java.lang.invoke.ConstantCallSite;
 import com.ctre.CANTalon;
 import com.team5854.frc2017.Constants;
 
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.command.Subsystem;
 
 public class Drive extends Subsystem {
@@ -18,7 +20,8 @@ public class Drive extends Subsystem {
 	// objects representing components of the drivertrain
 	private final CANTalon leftFrontMaster, rightFrontMaster, leftRearMaster, rightRearMaster; // declare the master motor controllers
 	private final CANTalon leftFrontSlave, rightFrontSlave, leftRearSlave, rightRearSlave;  // delcare slave motor controllers
-	
+	private final RobotDrive mecanumDrive; // used for creating the mecanum drive manuverbility
+	private final ADXRS450_Gyro gyro;
 	
 	@Override
 	protected void initDefaultCommand() {
@@ -62,6 +65,14 @@ public class Drive extends Subsystem {
 		leftRearSlave.set(Constants.LEFT_REAR_MASTER_ID);
 		rightRearSlave.changeControlMode(CANTalon.TalonControlMode.Follower);
 		rightRearSlave.set(Constants.RIGHT_REAR_MASTER_ID);	
+		
+		// sets up the RobotDrive 
+		mecanumDrive = new RobotDrive(leftFrontMaster, leftRearMaster, rightFrontMaster, rightRearMaster);
+	
+		// sets up sensors that makes up the drivetrain 
+		gyro = new ADXRS450_Gyro();
+		
 	}
+	
 	
 }
