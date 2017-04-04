@@ -8,7 +8,13 @@ import com.team5854.frc2017.Constants;
 import edu.wpi.first.wpilibj.command.Subsystem;
 
 public class Drive extends Subsystem {
-
+	
+	private static Drive driveInstance = new Drive();
+	
+	public static Drive getInstance() {
+		return driveInstance;
+	}
+	
 	// objects representing components of the drivertrain
 	private final CANTalon leftFrontMaster, rightFrontMaster, leftRearMaster, rightRearMaster; // declare the master motor controllers
 	private final CANTalon leftFrontSlave, rightFrontSlave, leftRearSlave, rightRearSlave;  // delcare slave motor controllers
@@ -19,7 +25,7 @@ public class Drive extends Subsystem {
 		// TODO Auto-generated method stub
 		
 	}
-
+	
 	/**
 	 * Initializes all components of the drivetrain.
 	 */
@@ -55,8 +61,7 @@ public class Drive extends Subsystem {
 		leftRearSlave.changeControlMode(CANTalon.TalonControlMode.Follower);
 		leftRearSlave.set(Constants.LEFT_REAR_MASTER_ID);
 		rightRearSlave.changeControlMode(CANTalon.TalonControlMode.Follower);
-		rightRearSlave.set(Constants.RIGHT_REAR_MASTER_ID);
-		
-		
+		rightRearSlave.set(Constants.RIGHT_REAR_MASTER_ID);	
 	}
+	
 }

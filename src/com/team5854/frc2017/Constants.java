@@ -14,4 +14,13 @@ public class Constants {
 	public static final int RIGHT_FRONT_SLAVE_ID = 0;
 	public static final int LEFT_REAR_SLAVE_ID = 0;
 	public static final int RIGHT_REAR_SLAVE_ID = 0;
+	
+	// joystick ports
+	public static final int PRIMARY_JOYSTICK_PORT = 0;
+	public static final int SECONDARY_JOYSTICK_PORT = 0;
+	
+	// driver controls
+	
+	// operator controls
+	
 }
